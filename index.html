@@ -3,730 +3,430 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>VIP Missions — Profile • Game • Leaderboard</title>
+<title>VIP Missions — Gated Landing</title>
 <style>
   :root{
     --bg:#0f1129; --card:#121125; --ring:#2a2e58;
-    --ink:#f2f3ff; --mut:#c7cbff; --a3:#78f3ff;
+    --ink:#f2f3ff; --mut:#c7cbff;
     --g1:#ff6ec4; --g2:#7873f5;
-    --good:#8ef5a2; --bad:#ff8a8a; --gold:#ffd86a;
+    --ok:#aef7c1; --bad:#ffb3be; --gold:#ffd86a;
     --glow: 0 0 24px rgba(120,115,245,.55), 0 0 48px rgba(255,110,196,.35);
   }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{
-    margin:0; color:var(--ink);
-    font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
-    background:
-      radial-gradient(1200px 800px at 70% -10%, #1a1c3a 0%, #0f1129 60%, #0a0b1e 100%),
-      conic-gradient(from 180deg at 10% -20%, rgba(120,115,245,.12), transparent 30%);
-    overflow-x:hidden;
-  }
-  .wrap{max-width:1100px;margin:0 auto;padding:20px}
-  .hdr{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .logo{font-weight:900;letter-spacing:.3px;font-size:20px;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 20px rgba(255,110,196,.18))}
-  .profileChip{display:flex;align-items:center;gap:8px;background:#17173a;border:1px solid var(--ring);padding:6px 10px;border-radius:999px;box-shadow:var(--glow)}
-  .profileChip img{width:24px;height:24px;border-radius:50%;display:block}
-  .avatarBtn{appearance:none;border:0;background:#1a1d46;color:var(--ink);border:1px solid var(--ring);padding:6px 10px;border-radius:10px;cursor:pointer;font-size:12px}
-  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
-  @media (max-width:980px){.grid{grid-template-columns:1fr}}
-  .card{background:linear-gradient(180deg,#14133a 0%, #11102c 50%, #0f1027 100%);border:1px solid #232656;border-radius:16px; padding:16px; box-shadow:0 18px 50px rgba(0,0,0,.45)}
-  .card h3{margin:0 0 12px 0; font-size:16px; letter-spacing:.2px}
-  .row{display:flex; gap:10px; align-items:center; margin:10px 0}
-  label{font-size:12px;color:var(--mut)}
-  input[type="text"], input[type="email"]{
-    width:100%; background:#0f1129;border:1px solid var(--ring); border-radius:10px; color:var(--ink);
-    padding:10px 12px; outline:none
-  }
-  .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:800;color:#0a0b1e;background:linear-gradient(90deg,var(--g1),var(--g2));cursor:pointer; box-shadow:var(--glow)}
+  *{box-sizing:border-box} html,body{height:100%} body{margin:0;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;background:
+      radial-gradient(1100px 700px at 70% -10%, #1a1c3a 0%, #0f1129 60%, #0a0b1e 100%),
+      conic-gradient(from 180deg at 10% -20%, rgba(120,115,245,.12), transparent 30%);}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  .hdr{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .logo{font-weight:900;letter-spacing:.3px;font-size:20px;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(255,110,196,.18))}
+  .chip{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--ring);color:var(--mut);display:inline-flex;gap:6px;align-items:center;background:#16173a}
+  .chip.ok{border-color:#285a3a;color:#b7ffcc;background:#11251a}
+  .chip.bad{border-color:#5a2831;color:#ffd0d6;background:#2a0f16}
+  .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:800;color:#0a0b1e;background:linear-gradient(90deg,var(--g1),var(--g2));cursor:pointer;box-shadow:var(--glow)}
   .btn.secondary{background:#1a1d46;color:var(--ink);border:1px solid var(--ring);box-shadow:none}
   .btn.ghost{background:transparent;color:var(--mut);border:1px dashed var(--ring);box-shadow:none}
-  .chip{padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid var(--ring);color:var(--mut);display:inline-flex;gap:6px;align-items:center;background:#16173a}
-  .chip.ok{border-color:#285a3a; color:#aef7c1; background:#11251a}
-  .chip.bad{border-color:#5a2831; color:#ffc3c9; background:#2a0f16}
-  .mut{color:var(--mut); font-size:12px}
-  .divider{height:1px;background:linear-gradient(90deg,transparent, #2a2e58 30%, #2a2e58 70%, transparent); margin:12px 0}
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  .card{background:linear-gradient(180deg,#14133a 0%,#11102c 50%,#0f1027 100%);border:1px solid #232656;border-radius:16px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .card h3{margin:0 0 10px 0;font-size:16px}
+  .mut{color:var(--mut);font-size:12px}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,#2a2e58 30%,#2a2e58 70%,transparent);margin:12px 0}
+  input[type="text"],input[type="email"]{width:100%;background:#0f1129;border:1px solid var(--ring);border-radius:10px;color:var(--ink);padding:10px 12px;outline:none}
+
+  /* Gate modal */
+  .mask{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:50}
+  .modal{background:#0f1129;border:1px solid #2a2e58;border-radius:16px;padding:18px;width:min(92%,520px)}
+  .row{display:flex;gap:8px;align-items:center;margin:8px 0}
+  .err{color:#ffb3be;font-size:12px}
+
+  /* Header profile chip */
+  .profileChip{display:flex;align-items:center;gap:8px;background:#17173a;border:1px solid var(--ring);padding:6px 10px;border-radius:999px}
+  .profileChip img{width:24px;height:24px;border-radius:50%}
+
+  /* Meter */
   .meter{height:16px;border-radius:999px;background:#16173a;border:1px solid var(--ring);position:relative;overflow:hidden}
-  .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#41e2ff,#7f77ff,#ff6ec4); transition:width .4s ease}
-  .tiers{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-  .tier{flex:1; min-width:110px; background:#16173a;border:1px solid var(--ring); border-radius:12px; padding:8px}
-  .tier h4{margin:0 0 4px 0; font-size:12px}
-  .tier p{margin:0; font-size:11px; color:var(--mut)}
+  .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#41e2ff,#7f77ff,#ff6ec4);transition:width .4s ease}
+  .tiers{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .tier{flex:1;min-width:120px;background:#16173a;border:1px solid var(--ring);border-radius:12px;padding:8px}
+  .tier h4{margin:0 0 2px 0;font-size:12px}
+  .tier p{margin:0;font-size:11px;color:var(--mut)}
 
   /* Game */
-  .gameWrap{background:#0c0e26;border:1px solid #273064;border-radius:16px;padding:12px; position:relative; overflow:hidden}
-  .gameTop{display:flex;gap:8px; align-items:center; justify-content:space-between; margin-bottom:8px}
-  canvas{width:100%; height:360px; background: radial-gradient(600px 300px at 50% -100px, #1d2255, #0c0e26 50%); border-radius:12px; display:block; box-shadow:0 8px 40px rgba(127,119,255,.15)}
-  .stat{font-size:12px;color:var(--mut)}
-  .startMsg{font-size:12px;color:var(--mut)}
-  .pulse{animation:pulse 1.6s infinite}
-  @keyframes pulse{ 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
-
-  /* Avatar modal */
-  .modalMask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
-  .modal{background:#0f1129;border:1px solid #2a2e58;border-radius:16px;padding:16px;max-width:520px;width:92%}
-  .avatarGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-  .avatarGrid button{border:1px solid var(--ring);background:#14133a;border-radius:12px;padding:6px;cursor:pointer}
-  .avatarGrid img{width:100%;aspect-ratio:1/1;border-radius:10px;display:block}
-  .modalHdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .small{font-size:12px;color:var(--mut)}
-  .toolsRow{display:flex;gap:8px;flex-wrap:wrap}
+  .gameWrap{background:#0c0e26;border:1px solid #273064;border-radius:16px;padding:12px;position:relative;overflow:hidden}
+  .gameTop{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
+  canvas{width:100%;height:360px;background:radial-gradient(600px 300px at 50% -100px,#1d2255,#0c0e26 50%);border-radius:12px;display:block;box-shadow:0 8px 40px rgba(127,119,255,.15)}
+  .spark{position:absolute;pointer-events:none;filter:drop-shadow(0 0 8px rgba(255,255,255,.6))}
 
   /* Leaderboard */
-  .lb{margin-top:8px}
   .lb table{width:100%;border-collapse:collapse}
   .lb th,.lb td{padding:8px;border-bottom:1px solid #2a2e58;font-size:12px}
   .lb th{color:#a4b0ff;text-align:left}
-  .pos{width:40px;color:#ffd86a;font-weight:800}
+  .pos{width:40px;color:var(--gold);font-weight:800}
   .me{background:linear-gradient(90deg, rgba(120,115,245,.08), transparent); border-left:3px solid #7873f5}
-  .spark{position:absolute;pointer-events:none;filter:drop-shadow(0 0 8px rgba(255,255,255,.6))}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hdr">
-      <div class="logo">VIP Missions</div>
-      <div style="display:flex; gap:10px; align-items:center">
-        <div class="profileChip">
-          <img id="avatarImg" src="" alt="avatar">
-          <span id="topUsername">Guest</span>
-        </div>
-        <button class="avatarBtn" id="chooseAvatarBtn">Choose Avatar</button>
-      </div>
+
+<!-- ===== Gate: must enter allowlisted username ===== -->
+<div class="mask" id="gateMask">
+  <div class="modal">
+    <h3>Enter your username to continue</h3>
+    <div class="mut">Access is only available to approved usernames. (Case-insensitive)</div>
+    <div class="row">
+      <input id="gateUsername" type="text" placeholder="Your username" maxlength="40" />
+      <button class="btn" id="gateEnterBtn">Enter</button>
     </div>
+    <div class="err" id="gateErr" style="display:none"></div>
+    <div class="divider"></div>
+    <div class="mut" id="gateTips">Tip: Your name is checked against the VIP Allowlist.</div>
+  </div>
+</div>
 
-    <!-- Avatar modal -->
-    <div class="modalMask" id="avatarMask">
-      <div class="modal">
-        <div class="modalHdr">
-          <strong>Choose your avatar</strong>
-          <button class="avatarBtn" id="closeAvatarBtn">Close</button>
-        </div>
-        <div class="small">Tip: you can change this later.</div>
-        <div class="avatarGrid" id="avatarGrid"></div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h3>1) Your Profile</h3>
-        <div id="profileForm">
-          <div class="row">
-            <div style="flex:1">
-              <label>Username</label>
-              <input id="username" type="text" placeholder="Your casino username" maxlength="40">
-            </div>
-            <div style="flex:1">
-              <label>Email</label>
-              <input id="email" type="email" placeholder="name@example.com" maxlength="80">
-            </div>
-          </div>
-          <div class="row" style="justify-content:flex-end">
-            <button class="btn pulse" id="saveProfileBtn">Save Profile</button>
-          </div>
-          <p class="mut">Saved locally on this device. If you made a typo, you can reset below.</p>
-          <div class="row" style="justify-content:space-between">
-            <button class="btn ghost" id="resetProfileBtn">Fix my details</button>
-            <div class="chip">Created: <span id="createdAt">—</span></div>
-          </div>
-          <div class="divider"></div>
-        </div>
-
-        <div id="profileLocked" style="display:none">
-          <div class="row">
-            <div class="chip" id="userVChip">Username: <strong id="uVal">—</strong> <span class="chip bad" id="uStatus">Unverified</span></div>
-          </div>
-          <div class="row">
-            <div class="chip" id="emailVChip">Email: <strong id="eVal">—</strong> <span class="chip bad" id="eStatus">Unverified</span></div>
-          </div>
-          <div class="row" style="gap:8px">
-            <input id="verifyCode" type="text" placeholder="Enter verification code" maxlength="12" style="max-width:260px">
-            <button class="btn secondary" id="applyVerifyBtn">Apply Code</button>
-            <button class="btn ghost" id="wipeAllBtn">Reset everything</button>
-          </div>
-          <div class="toolsRow" style="margin-top:8px">
-            <button class="btn secondary" id="copyProgressBtn">Copy Progress</button>
-            <button class="btn ghost" id="emailProgressBtn">Send Progress</button>
-            <button class="btn" id="syncToSheetBtn" title="Optional: posts to Google Sheet">Sync to Admin</button>
-          </div>
-          <p class="mut">Copy/Send gives a one-line summary your team can review. “Sync to Admin” logs it in your Google Sheet (optional).</p>
-          <div class="divider"></div>
-        </div>
-
-        <h3>2) Missions (earn points → boost VIP Day prizes)</h3>
-        <div class="row"><span class="chip" id="m_user">Verified Username +1</span></div>
-        <div class="row"><span class="chip" id="m_email">Verified Email +1</span></div>
-        <div class="row"><span class="chip" id="m_game">Mini-game Score (20+=+1, 50+=+2, 100+=+3 per day)</span></div>
-        <div class="divider"></div>
-
-        <h3>3) Mini-Game: Catch the Coin</h3>
-        <div class="gameWrap" id="gameWrap">
-          <div class="gameTop">
-            <div class="stat">Score: <strong id="scoreTxt">0</strong> • Best: <strong id="bestTxt">0</strong></div>
-            <div style="display:flex; align-items:center; gap:8px">
-              <label class="stat"><input id="soundChk" type="checkbox"> Sound</label>
-              <button class="btn" id="startBtn">Start</button>
-              <button class="btn secondary" id="backBtn" disabled>Back to Menu</button>
-            </div>
-          </div>
-          <canvas id="game" width="640" height="360"></canvas>
-          <div class="startMsg">Move paddle with your finger or mouse. Catch <span class="chip ok">🪙 coin</span>, avoid <span class="chip bad">💣 bomb</span>, grab <span class="chip">✨ x2</span> multiplier.</div>
-        </div>
-        <p class="mut">Prizes lock on the 15th each month. Keep stacking points!</p>
-      </div>
-
-      <!-- RIGHT -->
-      <div class="card">
-        <h3>Your VIP Day Boost</h3>
-        <div class="row" style="justify-content:space-between">
-          <div>Total Points: <strong id="ptsTotal">0</strong></div>
-          <div class="mut">Today’s game credit: <strong id="dailyCredit">0/3</strong></div>
-        </div>
-        <div class="meter"><div class="fill" id="fill"></div></div>
-        <div class="tiers">
-          <div class="tier"><h4>Tier 0 • 0–4 pts</h4><p>Base VIP Day prize</p></div>
-          <div class="tier"><h4>Tier 1 • 5–9 pts</h4><p>+ Small boost</p></div>
-          <div class="tier"><h4>Tier 2 • 10–19 pts</h4><p>+ Medium boost</p></div>
-          <div class="tier"><h4>Tier 3 • 20+ pts</h4><p>+ Big boost</p></div>
-        </div>
-        <div class="divider"></div>
-
-        <h3>Leaderboard (verified players)</h3>
-        <div class="lb" id="leaderboard">
-          <div class="mut">Loading leaderboard…</div>
-        </div>
-      </div>
+<div class="wrap" id="app" style="display:none">
+  <div class="hdr">
+    <div class="logo">VIP Missions</div>
+    <div class="profileChip">
+      <img id="avatarImg" alt="" />
+      <span id="topUsername">—</span>
+      <span id="verifyChip" class="chip">Checking…</span>
     </div>
   </div>
 
+  <div class="grid">
+    <!-- LEFT -->
+    <div class="card">
+      <h3>Missions (earn points → boost VIP Day)</h3>
+      <div class="row"><span id="m_verified" class="chip">Verified Username +1 (once)</span></div>
+      <div class="row"><span id="m_checkin" class="chip">Daily Check-in (1–14 only) +1/day</span> <button class="btn secondary" id="checkinBtn">Check in</button></div>
+      <div class="row"><span id="m_game" class="chip">Mini-game: 20+=+1, 50+=+2, 100+=+3 (max +3/day)</span></div>
+      <div class="divider"></div>
+
+      <h3>Mini-game: Catch the Coin</h3>
+      <div class="gameWrap" id="gameWrap">
+        <div class="gameTop">
+          <div class="mut">Score: <b id="scoreTxt">0</b> • Best: <b id="bestTxt">0</b></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label class="mut"><input id="soundChk" type="checkbox"> Sound</label>
+            <button class="btn" id="startBtn">Start</button>
+            <button class="btn secondary" id="backBtn" disabled>Back</button>
+          </div>
+        </div>
+        <canvas id="game" width="640" height="360"></canvas>
+        <div class="mut">Move paddle with finger/mouse. Catch 🪙, avoid 💣, grab ✨ x2 multiplier.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+      <h3>Your VIP Day Boost</h3>
+      <div class="row" style="justify-content:space-between">
+        <div>Total Points: <b id="ptsTotal">0</b></div>
+        <div class="mut">Game credit today: <b id="dailyCredit">0/3</b></div>
+      </div>
+      <div class="meter"><div class="fill" id="fill"></div></div>
+      <div class="tiers">
+        <div class="tier"><h4>Tier 0 • 0–4</h4><p>Base reward</p></div>
+        <div class="tier"><h4>Tier 1 • 5–9</h4><p>Small boost</p></div>
+        <div class="tier"><h4>Tier 2 • 10–19</h4><p>Medium boost</p></div>
+        <div class="tier"><h4>Tier 3 • 20+</h4><p>Big boost</p></div>
+      </div>
+      <div class="divider"></div>
+
+      <h3>Leaderboard (verified only)</h3>
+      <div class="lb" id="leaderboard"><div class="mut">Loading…</div></div>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ==========================================================
-   CONFIG — EDIT THIS BLOCK
-   ========================================================== */
-
-/* 1) Verification codes (optional: keep or remove) */
-const VERIFY_CODES = {
-  USER:   ['USEROK', '123000'],    // grants Username Verified (+1 once)
-  EMAIL:  ['EMAILOK', '000456'],   // grants Email Verified (+1 once)
-  BOTH:   ['123456']               // grants both at once (+1 each, once)
-};
-
-/* 2) Avatar images — your hosted images */
-const AVATAR_URLS = [
+/* ========================= CONFIG ========================= */
+const ADMIN_WEBHOOK = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+const AVATARS = [
   'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
-  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png',
-  'https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png',
-  'https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png',
-  'https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png',
-  'https://ricomx.ft-crm.com/media-api/serve/596c02c5-ad1c-42b7-9fb2-da6df154d35b_6.png',
-  'https://ricomx.ft-crm.com/media-api/serve/587f1afe-0e39-4f76-8715-48496452cfdf_7.png',
-  'https://ricomx.ft-crm.com/media-api/serve/6959ee62-92fa-4192-a2d6-f678a4934b4f_8.png',
-  'https://ricomx.ft-crm.com/media-api/serve/a450b16e-9310-4e83-ae66-ea71822a218b_9.png',
-  'https://ricomx.ft-crm.com/media-api/serve/24e07c3f-99fb-4bed-91f1-b91f1e0f7c8d_10.png',
-  'https://ricomx.ft-crm.com/media-api/serve/120d451f-a6dc-4f7b-b3f4-a1b5b8642443_11.png',
-  'https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png',
+  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png'
 ];
+const CAMPAIGN = { startDay:1, lockDay:15, resetDay:16 }; // 1–14 earn, 15 VIP Day, 16+ locked
 
-/* 3) Google Apps Script webhook (your live URL) */
-const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzdSEx4H5GuHDlfCDoF5YUFx2lTRBcH3KJql2KC8_M7FVJG9mGt7MEooX8C663ZD1uc0g/exec';
-const AUTO_POLL_REMOTE_VERIFICATION = true;
-const POLL_INTERVAL_MS = 15000;
+/* ==================== STORAGE / STATE ==================== */
+const K_PROFILE='vip_profile_gate_v1';
+const K_POINTS ='vip_points_gate_v1';
+const K_GAME   ='vip_game_gate_v1';
 
-/* ==========================================================
-   STORAGE KEYS & HELPERS
-   ========================================================== */
-const K_PROFILE='vip_profile_v2';
-const K_POINTS ='vip_points_v2';
-const K_GAME   ='vip_game_v2';
-const K_LOCAL_LB='vip_local_lb_v1';
-
-const now = ()=> new Date().toISOString();
+const nowISO = ()=> new Date().toISOString();
 const load = (k,d)=>{ try{return JSON.parse(localStorage.getItem(k)) ?? d;}catch(e){return d;} };
 const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
 const wipe = k => localStorage.removeItem(k);
 
-/* ==========================================================
-   STATE
-   ========================================================== */
-let profile = load(K_PROFILE, { username:'', email:'', avatar:'', createdAt:'', verifiedUser:false, verifiedEmail:false, reviewChip:true });
-let points  = load(K_POINTS,  { total:0, logs:[], lastGameDay:'', dailyGameCredit:0 });
+let profile = load(K_PROFILE, { username:'', avatar:AVATARS[0], createdAt:'', verifiedUser:false, verifiedAwarded:false });
+let points  = load(K_POINTS,  { total:0, logs:[], lastGameDay:'', dailyGameCredit:0, lastCheckDay:'' });
 let game    = load(K_GAME,    { best:0 });
 
-/* ==========================================================
-   DOM REFS
-   ========================================================== */
+/* ====================== DOM REFS ======================= */
 const d = id => document.getElementById(id);
-
-// Header
-const topUsername = d('topUsername');
-const avatarImg = d('avatarImg');
-const chooseAvatarBtn = d('chooseAvatarBtn');
-const avatarMask = d('avatarMask');
-const closeAvatarBtn = d('closeAvatarBtn');
-const avatarGrid = d('avatarGrid');
-
-// Profile
-const profileForm = d('profileForm');
-const profileLocked = d('profileLocked');
-const usernameI = d('username');
-const emailI = d('email');
-const saveProfileBtn = d('saveProfileBtn');
-const resetProfileBtn = d('resetProfileBtn');
-const wipeAllBtn = d('wipeAllBtn');
-const createdAt = d('createdAt');
-const uVal = d('uVal'), eVal = d('eVal');
-const uStatus = d('uStatus'), eStatus = d('eStatus');
-const m_user = d('m_user'), m_email = d('m_email'), m_game = d('m_game');
-const verifyCodeI = d('verifyCode'), applyVerifyBtn = d('applyVerifyBtn');
-
-// Admin tools
-const copyProgressBtn = d('copyProgressBtn');
-const emailProgressBtn = d('emailProgressBtn');
-const syncToSheetBtn = d('syncToSheetBtn');
-
-// Points
+const gateMask = d('gateMask'), gateUsername = d('gateUsername'), gateEnterBtn = d('gateEnterBtn'), gateErr = d('gateErr'), gateTips = d('gateTips');
+const app = d('app'), topUsername = d('topUsername'), avatarImg = d('avatarImg'), verifyChip = d('verifyChip');
+const m_verified = d('m_verified'), m_checkin = d('m_checkin'), m_game = d('m_game'), checkinBtn = d('checkinBtn');
 const ptsTotal = d('ptsTotal'), fill = d('fill'), dailyCredit = d('dailyCredit');
-
-// Game
-const gameWrap = d('gameWrap');
-const gameC = d('game'), ctx = gameC.getContext('2d',{alpha:false});
-const startBtn = d('startBtn'), backBtn = d('backBtn'), soundChk = d('soundChk');
-const scoreTxt = d('scoreTxt'), bestTxt = d('bestTxt');
-
-// Leaderboard
+const gameWrap = d('gameWrap'), gameC = d('game'), scoreTxt = d('scoreTxt'), bestTxt = d('bestTxt'), startBtn = d('startBtn'), backBtn = d('backBtn'), soundChk = d('soundChk');
+const ctx = gameC.getContext('2d',{alpha:false});
 const leaderboardEl = d('leaderboard');
 
-/* ==========================================================
-   UI: AVATAR + HEADER CHIP
-   ========================================================== */
-if(!profile.avatar){ profile.avatar = AVATAR_URLS[0]; save(K_PROFILE, profile); }
-function refreshTopChip(){
-  topUsername.textContent = profile.username || 'Guest';
-  avatarImg.src = profile.avatar || AVATAR_URLS[0];
+/* ===================== DATE HELPERS ===================== */
+function ymd(d=new Date()){ return [d.getFullYear(), d.getMonth()+1, d.getDate()] }
+function inEarnWindow(){
+  const [, , day] = ymd();
+  return day >= CAMPAIGN.startDay && day <= (CAMPAIGN.lockDay-1);
 }
-function openAvatarPicker(){
-  avatarGrid.innerHTML='';
-  AVATAR_URLS.forEach((url,idx)=>{
-    const btn=document.createElement('button');
-    btn.innerHTML=`<img src="${url}" alt="avatar ${idx+1}">`;
-    btn.addEventListener('click', ()=>{
-      profile.avatar=url; save(K_PROFILE, profile);
-      refreshTopChip(); avatarMask.style.display='none';
-    });
-    avatarGrid.appendChild(btn);
-  });
-  avatarMask.style.display='flex';
-}
-chooseAvatarBtn.addEventListener('click', openAvatarPicker);
-closeAvatarBtn.addEventListener('click', ()=> avatarMask.style.display='none');
-avatarMask.addEventListener('click', (e)=>{ if(e.target===avatarMask) avatarMask.style.display='none'; });
+function isVipDay(){ const [, , day] = ymd(); return day === CAMPAIGN.lockDay; }
+function isLocked(){ const [, , day] = ymd(); return day >= CAMPAIGN.resetDay; }
 
-/* ==========================================================
-   PROFILE UI
-   ========================================================== */
-function refreshProfileUI(){
-  if(profile.username){
-    profileForm.style.display='none';
-    profileLocked.style.display='block';
-    createdAt.textContent = profile.createdAt ? new Date(profile.createdAt).toLocaleString() : '—';
-    uVal.textContent = profile.username;
-    eVal.textContent = profile.email || '—';
-    if(profile.verifiedUser){ uStatus.textContent='Verified'; uStatus.className='chip ok'; m_user.className='chip ok'; }
-    else{ uStatus.textContent='Unverified'; uStatus.className='chip bad'; m_user.className='chip'; }
-    if(profile.verifiedEmail){ eStatus.textContent='Verified'; eStatus.className='chip ok'; m_email.className='chip ok'; }
-    else{ eStatus.textContent='Unverified'; eStatus.className='chip bad'; m_email.className='chip'; }
-  } else {
-    profileForm.style.display='block';
-    profileLocked.style.display='none';
-    createdAt.textContent='—';
-  }
-  refreshTopChip();
+/* =================== GATE: CHECK USER =================== */
+async function checkUserAllowed(username){
+  const url = new URL(ADMIN_WEBHOOK);
+  url.searchParams.set('action','checkUser');
+  url.searchParams.set('u', username);
+  const res = await fetch(url.toString(), { cache:'no-store' });
+  if(!res.ok) throw new Error('Network');
+  return res.json(); // {allowed, verified, points,best,dailyCredit,lastGameDay,createdAt}
 }
-saveProfileBtn.addEventListener('click', ()=>{
-  const u=usernameI.value.trim();
-  const e=emailI.value.trim();
-  if(!u){ alert('Please enter a username.'); return; }
-  profile={...profile, username:u, email:e, createdAt:now()};
-  save(K_PROFILE, profile);
-  confettiBurst(gameWrap);
-  refreshProfileUI();
-  // Push to admin & start a remote check
-  syncToAdmin('profile');
-  if(AUTO_POLL_REMOTE_VERIFICATION) checkRemoteVerification();
-});
-resetProfileBtn.addEventListener('click', ()=>{
-  if(confirm('Reset profile fields? This only clears the form (not points).')){
-    wipe(K_PROFILE); profile={ username:'', email:'', avatar:AVATAR_URLS[0], createdAt:'', verifiedUser:false, verifiedEmail:false, reviewChip:false };
-    refreshProfileUI(); usernameI.value=''; emailI.value='';
-  }
-});
-wipeAllBtn.addEventListener('click', ()=>{
-  if(confirm('Reset EVERYTHING on this device (profile, points, best score)?')){
-    [K_PROFILE,K_POINTS,K_GAME].forEach(wipe); location.reload();
-  }
-});
+function maskErr(msg){ gateErr.textContent = msg; gateErr.style.display='block'; }
+function hideErr(){ gateErr.style.display='none'; }
 
-/* ==========================================================
-   POINTS HELPERS
-   ========================================================== */
-function addPoints(n, reason){
-  points.total += n;
-  points.logs.push({ts:now(), n, reason});
-  save(K_POINTS, points);
-  updatePointsUI();
+async function enterWithUsername(){
+  hideErr();
+  const u = (gateUsername.value||'').trim();
+  if(!u){ maskErr('Please enter your username.'); return; }
+  try{
+    verifyChip.textContent = 'Checking…';
+    const data = await checkUserAllowed(u);
+    if(!data.allowed){
+      verifyChip.textContent = 'Access denied';
+      verifyChip.className = 'chip bad';
+      maskErr('Username not on VIP Allowlist. Please contact support.');
+      return;
+    }
+    // Allowed → show app
+    profile.username = u;
+    profile.createdAt = profile.createdAt || nowISO();
+    profile.avatar = profile.avatar || AVATARS[0];
+    // If server already has totals, merge (cross-browser)
+    mergeServerState(data);
+    // If not verified yet and never awarded, award +1 once
+    if(!data.verified && !profile.verifiedAwarded){
+      profile.verifiedUser = true;
+      profile.verifiedAwarded = true; // lifetime guard
+      addPoints(1, 'Verified Username');
+      syncToSheet('verify');
+    } else if (data.verified) {
+      profile.verifiedUser = true;
+      profile.verifiedAwarded = true;
+    }
+    save(K_PROFILE, profile);
+    refreshHeader();
+    refreshMissionsUI();
+    gateMask.style.display='none';
+    app.style.display='block';
+    // Load leaderboard
+    fetchLeaderboard();
+    // Post current snapshot
+    syncToSheet('enter');
+  }catch(e){
+    maskErr('Could not reach verification service. Try again.');
+  }
+}
+gateEnterBtn.addEventListener('click', enterWithUsername);
+gateUsername.addEventListener('keydown', e=>{ if(e.key==='Enter') enterWithUsername(); });
+
+/* ============ MERGE SERVER → LOCAL (sync) ============ */
+function mergeServerState(p){
+  if(!p) return;
+  if(typeof p.points === 'number' && p.points > (points.total||0)) points.total = p.points;
+  if(typeof p.best === 'number'   && p.best > (game.best||0))       game.best = p.best;
+  if(p.lastGameDay && (!points.lastGameDay || p.lastGameDay > points.lastGameDay)){
+    points.lastGameDay = p.lastGameDay;
+    points.dailyGameCredit = Number(p.dailyCredit||0);
+  }
+  save(K_POINTS, points); save(K_GAME, game);
+}
+
+/* =================== HEADER / MISSIONS =================== */
+function refreshHeader(){
+  topUsername.textContent = profile.username || '—';
+  avatarImg.src = profile.avatar || AVATARS[0];
+  if(profile.verifiedUser){ verifyChip.textContent='Verified'; verifyChip.className='chip ok'; m_verified.className='chip ok'; }
+  else { verifyChip.textContent='Unverified'; verifyChip.className='chip bad'; m_verified.className='chip'; }
 }
 function updatePointsUI(){
   ptsTotal.textContent = points.total;
-  const maxTier=20;
-  fill.style.width = Math.max(0, Math.min(100, (points.total/maxTier)*100)) + '%';
+  const maxTier=20; fill.style.width = Math.min(100, (points.total/maxTier)*100) + '%';
+  // reset daily credit if new day
   const today = new Date().toISOString().slice(0,10);
   if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; save(K_POINTS, points); }
   dailyCredit.textContent = `${points.dailyGameCredit}/3`;
 }
-
-/* ==========================================================
-   VERIFICATION (PLAYER CODE) — optional
-   ========================================================== */
-applyVerifyBtn.addEventListener('click', ()=>{
-  const c=(verifyCodeI.value||'').trim().toUpperCase();
-  if(!c){ alert('Enter a verification code.'); return; }
-  let changed=false, awarded=0;
-
-  const needUser  = !profile.verifiedUser  && (VERIFY_CODES.USER.includes(c)  || VERIFY_CODES.BOTH.includes(c));
-  const needEmail = !profile.verifiedEmail && (VERIFY_CODES.EMAIL.includes(c) || VERIFY_CODES.BOTH.includes(c));
-
-  if(needUser){ profile.verifiedUser=true; changed=true; awarded++; addPoints(1,'Verified Username'); }
-  if(needEmail){ profile.verifiedEmail=true; changed=true; awarded++; addPoints(1,'Verified Email'); }
-
-  if(changed){
-    save(K_PROFILE, profile);
-    refreshProfileUI();
-    confettiBurst(gameWrap);
-    alert(`Verification updated! (+${awarded})`);
-    syncToAdmin('verify'); // update sheet
+function refreshMissionsUI(){
+  const dd = ymd()[2];
+  if(isVipDay()){
+    m_checkin.textContent = 'VIP Day — Missions locked';
+    checkinBtn.disabled = true;
+  } else if(isLocked()){
+    m_checkin.textContent = 'Missions locked until next month';
+    checkinBtn.disabled = true;
   } else {
-    alert('Code not valid for your pending items or already verified.');
+    checkinBtn.disabled = (points.lastCheckDay === new Date().toISOString().slice(0,10) || !inEarnWindow());
+    m_checkin.className = checkinBtn.disabled ? 'chip ok' : 'chip';
   }
+  m_game.className = inEarnWindow() ? 'chip' : 'chip bad';
+}
+
+/* ======================== POINTS ======================== */
+function addPoints(n, reason){
+  points.total += n;
+  points.logs.push({ts:nowISO(), n, reason});
+  save(K_POINTS, points);
+  updatePointsUI();
+}
+
+/* ===================== DAILY CHECK-IN ==================== */
+checkinBtn.addEventListener('click', ()=>{
+  if(!inEarnWindow()){ alert('Check-ins available only from 1–14.'); return; }
+  const today = new Date().toISOString().slice(0,10);
+  if(points.lastCheckDay === today){ alert('You already checked in today.'); return; }
+  points.lastCheckDay = today; save(K_POINTS, points);
+  addPoints(1, `Daily Check-in ${today}`);
+  refreshMissionsUI();
+  confettiBurst(gameWrap);
+  syncToSheet('checkin');
 });
 
-/* ==========================================================
-   REMOTE VERIFICATION (ADMIN clicks in Sheet)
-   ========================================================== */
-function alreadyAwarded(prefix){ return points.logs.some(x => (x.reason||'').startsWith(prefix)); }
-function applyRemoteVerificationFlags(flags){
-  let changed=false, awarded=0;
-  if(flags.verifiedUser && !profile.verifiedUser){
-    profile.verifiedUser=true; save(K_PROFILE, profile);
-    if(!alreadyAwarded('RemoteUser')){ addPoints(1,'RemoteUser: Verified Username'); awarded++; }
-    changed=true;
-  }
-  if(flags.verifiedEmail && !profile.verifiedEmail){
-    profile.verifiedEmail=true; save(K_PROFILE, profile);
-    if(!alreadyAwarded('RemoteEmail')){ addPoints(1,'RemoteEmail: Verified Email'); awarded++; }
-    changed=true;
-  }
-  if(changed){
-    refreshProfileUI();
-    if(awarded>0) alert(`Verification updated by admin! (+${awarded})`);
-    confettiBurst(gameWrap);
-  }
-}
-async function checkRemoteVerification(){
-  if(!ADMIN_WEBHOOK) return;
-  if(!profile.username) return;
-  try{
-    const url = new URL(ADMIN_WEBHOOK);
-    url.searchParams.set('action','status');
-    url.searchParams.set('u', profile.username);
-    if(profile.email) url.searchParams.set('e', profile.email);
-    const res = await fetch(url.toString(), {cache:'no-store'});
-    if(!res.ok) return;
-    const data = await res.json(); // {verifiedUser:boolean, verifiedEmail:boolean}
-    if(typeof data?.verifiedUser === 'boolean' || typeof data?.verifiedEmail === 'boolean'){
-      applyRemoteVerificationFlags({
-        verifiedUser: !!data.verifiedUser,
-        verifiedEmail: !!data.verifiedEmail
-      });
-    }
-  } catch(e){ /* ignore */ }
-}
-
-/* ==========================================================
-   COPY/EMAIL/SYNC (ADMIN)
-   ========================================================== */
-function summarizeProgress(){
-  const summary = {
-    username: profile.username || '',
-    email: profile.email || '',
-    avatar: profile.avatar || '',
-    verifiedUser: !!profile.verifiedUser,
-    verifiedEmail: !!profile.verifiedEmail,
-    points: points.total || 0,
-    best: game.best || 0,
-    dailyCredit: points.dailyGameCredit || 0,
-    lastGameDay: points.lastGameDay || '',
-    createdAt: profile.createdAt || '',
-    clientStamp: new Date().toISOString(),
-  };
-  const raw = JSON.stringify(summary);
-  let h=0; for(let i=0;i<raw.length;i++){ h = (h*31 + raw.charCodeAt(i))>>>0; }
-  const line = `${summary.username} | ${summary.email} | pts:${summary.points} | best:${summary.best} | daily:${summary.dailyCredit} | last:${summary.lastGameDay} | h:${h}`;
-  return {summary,line,hash:h};
-}
-copyProgressBtn?.addEventListener('click', ()=>{
-  const {line}=summarizeProgress();
-  navigator.clipboard.writeText(line).then(()=>alert('Progress copied! Paste to admin chat.')).catch(()=>alert(line));
-});
-emailProgressBtn?.addEventListener('click', ()=>{
-  const {summary,line}=summarizeProgress();
-  const sub=encodeURIComponent(`VIP Progress • ${summary.username}`);
-  const body=encodeURIComponent(`Player progress:\n\n${line}\n`);
-  location.href=`mailto:vip@yourbrand.com?subject=${sub}&body=${body}`;
-});
-syncToSheetBtn?.addEventListener('click', ()=> syncToAdmin('manual'));
-
-/* ==========================================================
-   ADMIN SYNC + LEADERBOARD
-   ========================================================== */
-async function syncToAdmin(source){
-  if(!ADMIN_WEBHOOK){ saveLocalLB(); renderLeaderboard(); return; }
-  try{
-    const payload = summarizeProgress().summary;
-    await fetch(ADMIN_WEBHOOK, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
-    await fetchLeaderboard(); // refresh board after sync
-  }catch(e){
-    // fallback local
-    saveLocalLB(); renderLeaderboard();
-  }
-}
-function saveLocalLB(){
-  if(!profile.username) return;
-  const entry = {
-    username: profile.username,
-    email: profile.email,
-    points: points.total,
-    best: game.best,
-    verified: !!(profile.verifiedUser && profile.verifiedEmail),
-    ts: Date.now()
-  };
-  const arr = load(K_LOCAL_LB, []);
-  const idx = arr.findIndex(x=>x.username===entry.username);
-  if(idx>=0) arr[idx]=entry; else arr.push(entry);
-  save(K_LOCAL_LB, arr);
-}
-function maskUsername(u){
-  // Hide the MIDDLE 4 characters with ****.
-  if(!u) return '****';
-  const len = u.length;
-  if(len<=4){
-    if(len<=2) return u[0] + '****';
-    return u[0] + '****' + u[len-1];
-  }
-  const midLen = 4;
-  const start = Math.floor((len - midLen)/2);
-  return u.slice(0,start) + '****' + u.slice(start+midLen);
-}
-function renderLeaderboardTable(rows){
-  if(!rows || !rows.length){
-    leaderboardEl.innerHTML = `<div class="mut">No verified entries yet.</div>`;
-    return;
-  }
-  const meUser = profile.username;
-  const html = [
-    `<table><thead><tr><th class="pos">#</th><th>Player</th><th>Points</th><th>Best</th></tr></thead><tbody>`,
-    ...rows.map((r,i)=>{
-      const isMe = r.username===meUser;
-      const cls = isMe ? ' class="me"' : '';
-      return `<tr${cls}><td class="pos">${i+1}</td><td>${maskUsername(r.username)}</td><td>${r.points}</td><td>${r.best}</td></tr>`;
-    }),
-    `</tbody></table>`
-  ].join('');
-  leaderboardEl.innerHTML = html;
-}
-async function fetchLeaderboard(){
-  if(!ADMIN_WEBHOOK){
-    const arr = (load(K_LOCAL_LB, [])||[]).filter(r=>r.verified);
-    arr.sort((a,b)=> (b.points-a.points) || (b.best-a.best));
-    renderLeaderboardTable(arr.slice(0,20));
-    return;
-  }
-  try{
-    const res = await fetch(ADMIN_WEBHOOK + '?action=leaderboard');
-    const data = await res.json(); // [{username(masked), points, best}]
-    const rows = (data||[]).map(x=>({username:maskUsername(x.username||''), points:x.points||0, best:x.best||0}));
-    rows.sort((a,b)=> (b.points-a.points) || (b.best-a.best));
-    renderLeaderboardTable(rows.slice(0,20));
-  }catch(e){
-    const arr = (load(K_LOCAL_LB, [])||[]).filter(r=>r.verified);
-    arr.sort((a,b)=> (b.points-a.points) || (b.best-a-best));
-    renderLeaderboardTable(arr.slice(0,20));
-  }
-}
-
-/* ==========================================================
-   GAME
-   ========================================================== */
+/* ========================= GAME ========================= */
 let playing=false, frame=0, score=0, mult=1;
 let paddle = { x: gameC.width/2, y: gameC.height-22, w:100, h:12 };
-let drops=[]; // {x,y,vy,type}
-let lastSpawn=0;
-
+let drops=[], lastSpawn=0;
 let audioCtx=null;
 function playTone(freq, dur, type='sine', gain=0.06){
   if(!soundChk.checked) return;
   try{
     if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type=type; o.frequency.value=freq;
-    g.gain.setValueAtTime(gain, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (dur/1000));
-    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + (dur/1000));
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(gain,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+(dur/1000)); o.connect(g).connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+(dur/1000));
   }catch(e){}
 }
 function confettiBurst(container){
-  const N=24;
+  const N=22;
   for(let i=0;i<N;i++){
-    const s=document.createElement('div');
-    s.className='spark';
-    s.textContent='✦';
-    s.style.left=(container.getBoundingClientRect().width/2)+'px';
-    s.style.top='20px';
-    s.style.fontSize=(12+Math.random()*10)+'px';
-    s.style.color=`hsl(${Math.random()*360},90%,70%)`;
+    const s=document.createElement('div'); s.className='spark'; s.textContent='✦';
+    s.style.left=(container.getBoundingClientRect().width/2)+'px'; s.style.top='20px';
+    s.style.fontSize=(12+Math.random()*10)+'px'; s.style.color=`hsl(${Math.random()*360},90%,70%)`;
     container.appendChild(s);
-    const angle=Math.random()*Math.PI*2;
-    const dist=60+Math.random()*120;
+    const angle=Math.random()*Math.PI*2; const dist=60+Math.random()*120;
     const dx=Math.cos(angle)*dist, dy=Math.sin(angle)*dist;
     s.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${dx}px,${dy}px)`,opacity:0}],{duration:800+Math.random()*600,easing:'cubic-bezier(.2,.6,.2,1)'});
-    setTimeout(()=>s.remove(),1500);
+    setTimeout(()=>s.remove(),1400);
   }
-  playTone(880,120,'triangle',0.08);
 }
-
-function resetGame(){
-  score=0; mult=1; drops=[]; frame=0;
-  scoreTxt.textContent=score;
-  backBtn.disabled=true;
-}
+function resetGame(){ score=0; mult=1; drops=[]; frame=0; scoreTxt.textContent=score; backBtn.disabled=true; }
 function spawn(){
-  const t=Math.random();
-  const type = t<0.70 ? 'coin' : (t<0.90 ? 'bomb' : 'mult');
-  const x = 20 + Math.random()*(gameC.width-40);
-  const vy = 2 + Math.random()*3 + frame*0.0008;
-  drops.push({x, y:-10, vy, type});
+  const t=Math.random(); const type = t<0.70?'coin':(t<0.90?'bomb':'mult');
+  const x = 20 + Math.random()*(gameC.width-40); const vy = 2 + Math.random()*3 + frame*0.0008;
+  drops.push({x,y:-10,vy,type});
 }
 function draw(){
-  const grd=ctx.createLinearGradient(0,0,0,gameC.height);
-  grd.addColorStop(0,'#0e133a'); grd.addColorStop(1,'#0a0c24');
+  const grd=ctx.createLinearGradient(0,0,0,gameC.height); grd.addColorStop(0,'#0e133a'); grd.addColorStop(1,'#0a0c24');
   ctx.fillStyle=grd; ctx.fillRect(0,0,gameC.width,gameC.height);
-
   ctx.fillStyle='#7f77ff'; ctx.fillRect(paddle.x-paddle.w/2, paddle.y, paddle.w, paddle.h);
   ctx.fillStyle='rgba(255,110,196,.25)'; ctx.fillRect(paddle.x-paddle.w/2, paddle.y+10, paddle.w, 2);
-
   for(let i=0;i<drops.length;i++){
-    const d0=drops[i]; d0.y+=d0.vy;
-    ctx.font='24px system-ui'; ctx.textBaseline='middle';
+    const d0=drops[i]; d0.y+=d0.vy; ctx.font='24px system-ui'; ctx.textBaseline='middle';
     if(d0.type==='coin'){ ctx.fillText('🪙', d0.x-12, d0.y); }
     else if(d0.type==='bomb'){ ctx.fillText('💣', d0.x-12, d0.y); }
     else { ctx.fillText('✨', d0.x-12, d0.y); }
-
-    if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x - paddle.x) < (paddle.w/2)){
-      if(d0.type==='coin'){
-        score += (1*mult); scoreTxt.textContent=score;
-        playTone(920,80,'sine',0.07); flashAt(paddle.x, paddle.y);
-      } else if(d0.type==='bomb'){
-        score = Math.max(0, score-3); scoreTxt.textContent=score;
-        playTone(160,140,'sawtooth',0.07); shake(gameWrap);
-      } else if(d0.type==='mult'){
-        mult = Math.min(4, mult+1);
-        playTone(520,100,'triangle',0.07); flashAt(paddle.x, paddle.y);
-      }
+    if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){
+      if(d0.type==='coin'){ score += (1*mult); scoreTxt.textContent=score; playTone(920,80,'sine',0.07); }
+      else if(d0.type==='bomb'){ score=Math.max(0,score-3); scoreTxt.textContent=score; playTone(160,140,'sawtooth',0.07); }
+      else { mult=Math.min(4,mult+1); playTone(520,100,'triangle',0.07); }
       drops.splice(i,1); i--;
-    } else if(d0.y > gameC.height+20){
-      drops.splice(i,1); i--;
-    }
+    } else if(d0.y>gameC.height+20){ drops.splice(i,1); i--; }
   }
-
-  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='12px system-ui';
-  ctx.fillText(`x${mult} multiplier`, 10, 18);
-
-  if(playing){
-    frame++;
-    if(frame - lastSpawn > 24){ spawn(); lastSpawn=frame; }
-    requestAnimationFrame(draw);
-  } else {
-    ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,gameC.width,gameC.height);
-    ctx.fillStyle='#c7cbff'; ctx.font='16px system-ui';
-    ctx.fillText('Press START to play', gameC.width/2 - 80, gameC.height/2);
-  }
+  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='12px system-ui'; ctx.fillText(`x${mult} multiplier`, 10, 18);
+  if(playing){ frame++; if(frame-lastSpawn>24){ spawn(); lastSpawn=frame; } requestAnimationFrame(draw); }
+  else { ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,gameC.width,gameC.height); ctx.fillStyle='#c7cbff'; ctx.font='16px system-ui'; ctx.fillText('Press START to play', gameC.width/2-80, gameC.height/2); }
 }
-function flashAt(x,y){
-  const s=document.createElement('div'); s.className='spark'; s.textContent='✧';
-  const rect=gameC.getBoundingClientRect();
-  s.style.left=(x * (rect.width/gameC.width))+'px';
-  s.style.top=(y * (rect.height/gameC.height))+'px';
-  s.style.fontSize='18px'; s.style.color='#ffd86a';
-  gameWrap.appendChild(s);
-  s.animate([{transform:'translate(-50%,-50%) scale(.8)',opacity:1},{transform:'translate(-50%,-50%) scale(2.2)',opacity:0}],{duration:450,easing:'ease-out'});
-  setTimeout(()=>s.remove(),600);
-}
-function shake(el){ el.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:240}); }
 function endGame(){
   playing=false; backBtn.disabled=false;
-  if(score>game.best){ game.best=score; save(K_GAME, game); bestTxt.textContent=game.best; confettiBurst(gameWrap); }
+  if(score>game.best){ game.best=score; save(K_GAME,game); bestTxt.textContent=game.best; confettiBurst(gameWrap); }
   const today = new Date().toISOString().slice(0,10);
   if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; }
-  let award=0;
-  if(points.dailyGameCredit < 3){
-    if(score>=100) award=3; else if(score>=50) award=2; else if(score>=20) award=1;
-  }
+  let award=0; if(points.dailyGameCredit<3){ if(score>=100)award=3; else if(score>=50)award=2; else if(score>=20)award=1; }
   if(award>0){
-    const available = 3 - points.dailyGameCredit;
-    const give = Math.min(award, available);
+    const give=Math.min(award, 3 - points.dailyGameCredit);
     points.dailyGameCredit += give; save(K_POINTS, points);
     addPoints(give, `MiniGame:${today} score ${score}`);
-    alert(`Nice! You earned +${give} point(s) from today’s game.`);
+    alert(`Nice! You earned +${give} point(s) today.`);
   }
-  updatePointsUI();
-  draw();
-  syncToAdmin('game'); // update leaderboard after each game
+  updatePointsUI(); draw(); syncToSheet('game');
 }
 startBtn.addEventListener('click', ()=>{
-  if(!profile.username){ alert('Please save your profile first.'); return; }
-  playing=true; resetGame(); draw();
-  setTimeout(()=>{ if(playing) endGame(); }, 45000); // 45s round
+  if(!inEarnWindow()){ alert('Mini-game available 1–14 only.'); return; }
+  playing=true; resetGame(); draw(); setTimeout(()=>{ if(playing) endGame(); }, 45000);
 });
 backBtn.addEventListener('click', ()=>{ playing=false; draw(); });
-function setPaddleFromEvent(evt){
-  const rect=gameC.getBoundingClientRect();
-  const cx=(evt.clientX ?? (evt.touches && evt.touches[0].clientX) ?? 0) - rect.left;
-  const scale = gameC.width / rect.width;
+function setPaddle(evt){
+  const r=gameC.getBoundingClientRect(); const cx=(evt.clientX ?? evt.touches?.[0]?.clientX ?? 0) - r.left; const scale = gameC.width / r.width;
   paddle.x = Math.max(50, Math.min(gameC.width-50, cx*scale));
 }
-gameC.addEventListener('mousemove', setPaddleFromEvent);
-gameC.addEventListener('touchstart', e=>{ setPaddleFromEvent(e); e.preventDefault(); }, {passive:false});
-gameC.addEventListener('touchmove', e=>{ setPaddleFromEvent(e); e.preventDefault(); }, {passive:false});
+gameC.addEventListener('mousemove', setPaddle);
+gameC.addEventListener('touchstart', e=>{ setPaddle(e); e.preventDefault(); }, {passive:false});
+gameC.addEventListener('touchmove',  e=>{ setPaddle(e); e.preventDefault(); }, {passive:false});
 
-/* ==========================================================
-   BOOT
-   ========================================================== */
-bestTxt.textContent = game.best;
-refreshProfileUI();
-updatePointsUI();
-draw();
-fetchLeaderboard();
-if(AUTO_POLL_REMOTE_VERIFICATION){
-  checkRemoteVerification();
-  setInterval(checkRemoteVerification, POLL_INTERVAL_MS);
+/* =================== SYNC: SHEET API =================== */
+function snapshot(){
+  return {
+    username: profile.username || '',
+    avatar: profile.avatar || AVATARS[0],
+    verifiedUser: !!profile.verifiedUser,
+    points: points.total || 0,
+    best: game.best || 0,
+    dailyCredit: points.dailyGameCredit || 0,
+    lastGameDay: points.lastGameDay || '',
+    createdAt: profile.createdAt || '',
+    clientStamp: nowISO()
+  };
+}
+async function syncToSheet(source){
+  if(!ADMIN_WEBHOOK || !profile.username) return;
+  try{
+    await fetch(ADMIN_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(snapshot()) });
+  }catch(e){ /* ignore offline */ }
+}
+async function fetchLeaderboard(){
+  if(!ADMIN_WEBHOOK){ leaderboardEl.innerHTML='<div class="mut">No server.</div>'; return; }
+  try{
+    const res = await fetch(ADMIN_WEBHOOK + '?action=leaderboard', { cache:'no-store' });
+    const rows = await res.json();
+    if(!Array.isArray(rows) || !rows.length){ leaderboardEl.innerHTML='<div class="mut">No verified entries yet.</div>'; return; }
+    const me = profile.username;
+    const html = [
+      '<table><thead><tr><th class="pos">#</th><th>Player</th><th>Points</th><th>Best</th></tr></thead><tbody>',
+      ...rows.map((r,i)=>`<tr${r.username===me?' class="me"':''}><td class="pos">${i+1}</td><td>${r.username}</td><td>${r.points}</td><td>${r.best}</td></tr>`),
+      '</tbody></table>'
+    ].join('');
+    leaderboardEl.innerHTML = html;
+  }catch(e){ leaderboardEl.innerHTML='<div class="mut">Leaderboard unavailable.</div>'; }
 }
 
-/* ==========================================================
-   Apps Script endpoints used:
-   - POST /exec                      -> upsert player row
-   - GET  /exec?action=status&u=...  -> {verifiedUser, verifiedEmail}
-   - GET  /exec?action=leaderboard   -> [{username(masked), points, best}]
-*/
+/* ========================= BOOT ========================= */
+function boot(){
+  // Always start at gate; if we already have an allowed username, prefill
+  if(profile.username){ gateUsername.value = profile.username; }
+  avatarImg.src = profile.avatar || AVATARS[0];
+  bestTxt.textContent = game.best;
+  updatePointsUI();
+  refreshMissionsUI();
+  draw();
+}
+boot();
 </script>
 </body>
 </html>
