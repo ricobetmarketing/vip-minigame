@@ -211,7 +211,7 @@ const VERIFY_CODES = {
   BOTH:   ['123456']               // grants both at once (+1 each, once)
 };
 
-/* 2) Avatar images — replace with your hosted images */
+/* 2) Avatar images — your hosted images */
 const AVATAR_URLS = [
   'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
   'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png',
@@ -227,7 +227,7 @@ const AVATAR_URLS = [
   'https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png',
 ];
 
-/* 3) Google Apps Script webhook (YOUR URL) */
+/* 3) Google Apps Script webhook (your live URL) */
 const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzdSEx4H5GuHDlfCDoF5YUFx2lTRBcH3KJql2KC8_M7FVJG9mGt7MEooX8C663ZD1uc0g/exec';
 const AUTO_POLL_REMOTE_VERIFICATION = true;
 const POLL_INTERVAL_MS = 15000;
@@ -238,7 +238,7 @@ const POLL_INTERVAL_MS = 15000;
 const K_PROFILE='vip_profile_v2';
 const K_POINTS ='vip_points_v2';
 const K_GAME   ='vip_game_v2';
-const K_LOCAL_LB='vip_local_lb_v1'; // local-only leaderboard fallback
+const K_LOCAL_LB='vip_local_lb_v1';
 
 const now = ()=> new Date().toISOString();
 const load = (k,d)=>{ try{return JSON.parse(localStorage.getItem(k)) ?? d;}catch(e){return d;} };
@@ -553,14 +553,12 @@ async function fetchLeaderboard(){
   try{
     const res = await fetch(ADMIN_WEBHOOK + '?action=leaderboard');
     const data = await res.json(); // [{username(masked), points, best}]
-    // Note: server already masked. If not, mask on client too.
-    // But we double-mask safely:
     const rows = (data||[]).map(x=>({username:maskUsername(x.username||''), points:x.points||0, best:x.best||0}));
     rows.sort((a,b)=> (b.points-a.points) || (b.best-a.best));
     renderLeaderboardTable(rows.slice(0,20));
   }catch(e){
     const arr = (load(K_LOCAL_LB, [])||[]).filter(r=>r.verified);
-    arr.sort((a,b)=> (b.points-a.points) || (b.best-a.best));
+    arr.sort((a,b)=> (b.points-a.points) || (b.best-a-best));
     renderLeaderboardTable(arr.slice(0,20));
   }
 }
@@ -724,10 +722,10 @@ if(AUTO_POLL_REMOTE_VERIFICATION){
 }
 
 /* ==========================================================
-   OPTIONAL: Apps Script notes (already deployed on your side)
-   - /exec  (POST)   -> upsert player row
-   - /exec?action=status&u=USERNAME[&e=EMAIL] -> returns {verifiedUser, verifiedEmail}
-   - /exec?action=leaderboard -> returns top verified users with points/best (can mask server-side)
+   Apps Script endpoints used:
+   - POST /exec                      -> upsert player row
+   - GET  /exec?action=status&u=...  -> {verifiedUser, verifiedEmail}
+   - GET  /exec?action=leaderboard   -> [{username(masked), points, best}]
 */
 </script>
 </body>
