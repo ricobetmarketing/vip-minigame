@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>VIP Missions — Progress & Prizes</title>
+<style>
+  :root{
+    --bg:#0f1129; --card:#121125; --ring:#2a2e58;
+    --ink:#f2f3ff; --mut:#c7cbff;
+    --g1:#ff6ec4; --g2:#7873f5; --a3:#78f3ff;
+    --good:#8ef5a2; --bad:#ff8a8a; --gold:#ffd86a;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:radial-gradient(1200px 800px at 70% -10%, #1a1c3a 0%, #0f1129 60%, #0a0b1e 100%); color:var(--ink); font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial; }
+
+  .wrap{max-width:980px;margin:0 auto;padding:20px}
+  .hdr{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .logo{font-weight:800;letter-spacing:.5px;font-size:20px;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .badge{display:inline-flex;gap:8px;align-items:center;background:#17173a;border:1px solid var(--ring);padding:8px 12px;border-radius:999px;font-size:12px;color:var(--mut)}
+  .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px}
+  @media (max-width:820px){.grid{grid-template-columns:1fr;}}
+  .card{background:linear-gradient(180deg,#14133a 0%, #11102c 50%, #0f1027 100%);border:1px solid #232656;border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  .card h3{margin:0 0 12px 0; font-size:16px; letter-spacing:.2px}
+  .row{display:flex; gap:10px; align-items:center; margin:10px 0}
+  label{font-size:12px;color:var(--mut)}
+  input[type="text"], input[type="email"], input[type="number"]{
+    width:100%; background:#0f1129;border:1px solid var(--ring); border-radius:10px; color:var(--ink);
+    padding:10px 12px; outline:none
+  }
+  .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:700;color:#0a0b1e;background:linear-gradient(90deg,var(--g1),var(--g2));cursor:pointer}
+  .btn.secondary{background:#1a1d46;color:var(--ink);border:1px solid var(--ring)}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px dashed var(--ring)}
+  .chip{padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid var(--ring);color:var(--mut);display:inline-flex;gap:6px;align-items:center}
+  .chip.ok{border-color:#285a3a; color:#aef7c1; background:#11251a}
+  .chip.bad{border-color:#5a2831; color:#ffc3c9; background:#2a0f16}
+  .mut{color:var(--mut); font-size:12px}
+  .meter{height:16px;border-radius:999px;background:#16173a;border:1px solid var(--ring);position:relative;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#41e2ff,#7f77ff,#ff6ec4); transition:width .4s ease}
+  .tiers{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .tier{flex:1; min-width:110px; background:#16173a;border:1px solid var(--ring); border-radius:12px; padding:8px}
+  .tier h4{margin:0 0 4px 0; font-size:12px}
+  .tier p{margin:0; font-size:11px; color:var(--mut)}
+  .divider{height:1px;background:linear-gradient(90deg,transparent, #2a2e58 30%, #2a2e58 70%, transparent); margin:12px 0}
+
+  /* Mini-game canvas */
+  .gameWrap{background:#0c0e26;border:1px solid #273064;border-radius:16px;padding:12px}
+  .gameTop{display:flex;gap:8px; align-items:center; justify-content:space-between; margin-bottom:8px}
+  canvas{width:100%; height:360px; background: radial-gradient(600px 300px at 50% -100px, #1d2255, #0c0e26 50%); border-radius:12px; display:block}
+  .stat{font-size:12px;color:var(--mut)}
+  .soundToggle{display:flex;align-items:center;gap:6px; cursor:pointer}
+  .startMsg{font-size:12px;color:var(--mut)}
+  .footerNote{font-size:11px;color:#9aa6ff}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hdr">
+      <div class="logo">VIP Missions</div>
+      <div class="badge" id="profileStatus">Profile: <strong id="profileName">Guest</strong> <span class="chip" id="reviewChip">Under review • 24h</span></div>
+    </div>
+
+    <div class="grid">
+      <!-- Left: Profile + Missions + Game -->
+      <div class="card">
+        <h3>1) Your Profile</h3>
+        <div id="profileForm">
+          <div class="row">
+            <div style="flex:1">
+              <label>Username</label>
+              <input id="username" type="text" placeholder="Your casino username" maxlength="40">
+            </div>
+            <div style="flex:1">
+              <label>Email</label>
+              <input id="email" type="email" placeholder="name@example.com" maxlength="80">
+            </div>
+          </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn" id="saveProfileBtn">Save Profile</button>
+          </div>
+          <p class="mut">Saved locally on this device. If you made a typo, you can reset below.</p>
+          <div class="row" style="justify-content:space-between">
+            <button class="btn ghost" id="resetProfileBtn">Fix my details</button>
+            <div class="chip">Created: <span id="createdAt">—</span></div>
+          </div>
+          <div class="divider"></div>
+        </div>
+
+        <div id="profileLocked" style="display:none">
+          <div class="row">
+            <div class="chip" id="userVChip">Username: <strong id="uVal">—</strong> <span class="chip bad" id="uStatus">Unverified</span></div>
+          </div>
+          <div class="row">
+            <div class="chip" id="emailVChip">Email: <strong id="eVal">—</strong> <span class="chip bad" id="eStatus">Unverified</span></div>
+          </div>
+          <div class="row" style="gap:8px">
+            <input id="verifyCode" type="text" placeholder="Enter 6-digit verification code" maxlength="6" style="max-width:220px">
+            <button class="btn secondary" id="applyVerifyBtn">Apply Code</button>
+            <button class="btn ghost" id="wipeAllBtn">Reset everything</button>
+          </div>
+          <p class="mut">Your team can provide a 6-digit code to flip badges ON after manual checks.</p>
+          <div class="divider"></div>
+        </div>
+
+        <h3>2) Missions (earn points → boost VIP Day prizes)</h3>
+        <div class="row"><span class="chip" id="m_user">Verified Username +1</span></div>
+        <div class="row"><span class="chip" id="m_email">Verified Email +1</span></div>
+        <div class="row"><span class="chip" id="m_game">Mini-game Score (20+=+1, 50+=+2, 100+=+3 per day)</span></div>
+
+        <div class="divider"></div>
+
+        <h3>3) Mini-Game: Catch the Coin</h3>
+        <div class="gameWrap">
+          <div class="gameTop">
+            <div class="stat">Score: <strong id="scoreTxt">0</strong> • Best: <strong id="bestTxt">0</strong></div>
+            <div style="display:flex; align-items:center; gap:8px">
+              <label class="soundToggle"><input id="soundChk" type="checkbox"> Sound</label>
+              <button class="btn" id="startBtn">Start</button>
+              <button class="btn secondary" id="backBtn" disabled>Back to Menu</button>
+            </div>
+          </div>
+          <canvas id="game" width="640" height="360"></canvas>
+          <div class="startMsg">Move paddle with your finger or mouse. Catch <span class="chip ok">🪙 coin</span>, avoid <span class="chip bad">💣 bomb</span>, grab <span class="chip">✨ x2</span> multiplier.</div>
+        </div>
+        <p class="footerNote">Tip: Prizes lock on the 15th each month. Keep stacking points!</p>
+      </div>
+
+      <!-- Right: Points meter + tiers -->
+      <div class="card">
+        <h3>Your VIP Day Boost</h3>
+        <div class="row" style="justify-content:space-between">
+          <div>Total Points: <strong id="ptsTotal">0</strong></div>
+          <div class="mut">Today’s game credit: <strong id="dailyCredit">0/3</strong></div>
+        </div>
+        <div class="meter"><div class="fill" id="fill"></div></div>
+        <div class="tiers">
+          <div class="tier">
+            <h4>Tier 0 • 0–4 pts</h4>
+            <p>Base VIP Day prize</p>
+          </div>
+          <div class="tier">
+            <h4>Tier 1 • 5–9 pts</h4>
+            <p>+ Small boost</p>
+          </div>
+          <div class="tier">
+            <h4>Tier 2 • 10–19 pts</h4>
+            <p>+ Medium boost</p>
+          </div>
+          <div class="tier">
+            <h4>Tier 3 • 20+ pts</h4>
+            <p>+ Big boost</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <h3>Admin Tools (optional)</h3>
+        <div class="row" style="gap:8px">
+          <input id="adminCode" type="text" placeholder="Admin bonus code" maxlength="12" style="max-width:220px">
+          <button class="btn secondary" id="applyAdminBtn">Apply</button>
+        </div>
+        <p class="mut">Use a rotating code like <code>VIP15-SEP</code> to grant +1 if needed.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Local storage keys ---------- */
+const K_PROFILE = 'vip_profile_v1';
+const K_POINTS  = 'vip_points_v1';
+const K_GAME    = 'vip_game_v1';
+
+/* ---------- State helpers ---------- */
+const now = () => new Date().toISOString();
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch(e){ return d; } }
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const wipe = (k) => localStorage.removeItem(k);
+
+/* ---------- Initial data ---------- */
+let profile = load(K_PROFILE, { username:'', email:'', createdAt:'', verifiedUser:false, verifiedEmail:false, reviewChip:true });
+let points  = load(K_POINTS,  { total:0, logs:[], lastGameDay:'', dailyGameCredit:0 });
+let game    = load(K_GAME,    { best:0 });
+
+/* ---------- DOM refs ---------- */
+const d = id => document.getElementById(id);
+const profileForm = d('profileForm');
+const profileLocked = d('profileLocked');
+const usernameI = d('username');
+const emailI = d('email');
+const saveProfileBtn = d('saveProfileBtn');
+const resetProfileBtn = d('resetProfileBtn');
+const wipeAllBtn = d('wipeAllBtn');
+const profileName = d('profileName');
+const reviewChip = d('reviewChip');
+const createdAt = d('createdAt');
+const uVal = d('uVal'), eVal = d('eVal');
+const uStatus = d('uStatus'), eStatus = d('eStatus');
+const userVChip = d('userVChip'), emailVChip = d('emailVChip');
+const m_user = d('m_user'), m_email = d('m_email'), m_game = d('m_game');
+
+const verifyCodeI = d('verifyCode'), applyVerifyBtn = d('applyVerifyBtn');
+const adminCodeI = d('adminCode'), applyAdminBtn = d('applyAdminBtn');
+
+const ptsTotal = d('ptsTotal'), fill = d('fill'), dailyCredit = d('dailyCredit');
+const scoreTxt = d('scoreTxt'), bestTxt = d('bestTxt');
+const gameC = d('game'), startBtn = d('startBtn'), backBtn = d('backBtn'), soundChk = d('soundChk');
+const ctx = gameC.getContext('2d',{alpha:false});
+
+/* ---------- UI: profile load ---------- */
+function refreshProfileUI(){
+  if(profile.username){
+    profileForm.style.display = 'none';
+    profileLocked.style.display = 'block';
+    profileName.textContent = profile.username;
+    reviewChip.style.display = profile.reviewChip ? 'inline-flex':'none';
+    createdAt.textContent = profile.createdAt ? new Date(profile.createdAt).toLocaleString() : '—';
+    uVal.textContent = profile.username;
+    eVal.textContent = profile.email || '—';
+    if(profile.verifiedUser){ uStatus.textContent='Verified'; uStatus.className='chip ok'; m_user.className='chip ok'; }
+    else{ uStatus.textContent='Unverified'; uStatus.className='chip bad'; m_user.className='chip'; }
+    if(profile.verifiedEmail){ eStatus.textContent='Verified'; eStatus.className='chip ok'; m_email.className='chip ok'; }
+    else{ eStatus.textContent='Unverified'; eStatus.className='chip bad'; m_email.className='chip'; }
+  } else {
+    profileForm.style.display = 'block';
+    profileLocked.style.display = 'none';
+    profileName.textContent = 'Guest';
+    reviewChip.style.display = 'none';
+    createdAt.textContent = '—';
+  }
+}
+refreshProfileUI();
+
+/* ---------- Save profile ---------- */
+saveProfileBtn.addEventListener('click', ()=>{
+  const u = usernameI.value.trim();
+  const e = emailI.value.trim();
+  if(!u){ alert('Please enter a username.'); return; }
+  profile = { username:u, email:e, createdAt: now(), verifiedUser:false, verifiedEmail:false, reviewChip:true };
+  save(K_PROFILE, profile);
+  refreshProfileUI();
+});
+
+/* ---------- Reset profile fields (typo fix) ---------- */
+resetProfileBtn.addEventListener('click', ()=>{
+  if(confirm('Reset profile fields? This only clears the form (not points).')){
+    wipe(K_PROFILE); profile = { username:'', email:'', createdAt:'', verifiedUser:false, verifiedEmail:false, reviewChip:false };
+    refreshProfileUI();
+    usernameI.value=''; emailI.value='';
+  }
+});
+
+/* ---------- Wipe everything ---------- */
+wipeAllBtn.addEventListener('click', ()=>{
+  if(confirm('Reset EVERYTHING on this device (profile, points, best score)?')){
+    [K_PROFILE,K_POINTS,K_GAME].forEach(wipe);
+    location.reload();
+  }
+});
+
+/* ---------- Points helpers ---------- */
+function addPoints(n, reason){
+  points.total += n;
+  points.logs.push({ts:now(), n, reason});
+  save(K_POINTS, points);
+  updatePointsUI();
+}
+function updatePointsUI(){
+  ptsTotal.textContent = points.total;
+  const maxTier = 20; // for full bar
+  let pct = Math.max(0, Math.min(100, (points.total / maxTier) * 100));
+  fill.style.width = pct + '%';
+  // Show daily credit usage
+  const today = new Date().toISOString().slice(0,10);
+  if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; save(K_POINTS, points); }
+  dailyCredit.textContent = `${points.dailyGameCredit}/3`;
+}
+updatePointsUI();
+
+/* ---------- Verification code flow (manual) ---------- */
+/* Your team can decide codes. Example policy:
+   - 6 digits; first 3 for username, last 3 for email.
+   - Give players the correct one after manual check.
+   - Entering the correct segment flips the badge + awards +1 once.
+   This demo just checks simple samples: 123456 or 123000 / 000456
+*/
+applyVerifyBtn.addEventListener('click', ()=>{
+  const c = verifyCodeI.value.trim();
+  if(!c || c.length<3){ alert('Enter a valid code.'); return; }
+  let changed = false;
+  if(!profile.verifiedUser && (c==='123456' || c==='123000' || c==='USEROK')){
+    profile.verifiedUser = true; changed = true; addPoints(1,'Verified Username');
+  }
+  if(!profile.verifiedEmail && (c==='123456' || c==='000456' || c==='EMAILOK')){
+    profile.verifiedEmail = true; changed = true; addPoints(1,'Verified Email');
+  }
+  if(changed){
+    profile.reviewChip = false;
+    save(K_PROFILE, profile);
+    refreshProfileUI();
+    alert('Verification updated!');
+  }else{
+    alert('Code not valid for your pending items or already verified.');
+  }
+});
+
+/* ---------- Admin bonus code (optional) ---------- */
+applyAdminBtn.addEventListener('click', ()=>{
+  const code = adminCodeI.value.trim().toUpperCase();
+  // Example: rotate monthly codes; grant +1 once per code
+  if(!code){ alert('Enter a code.'); return; }
+  const already = points.logs.some(x=>x.reason===`Admin:${code}`);
+  if(already){ alert('This code was already used.'); return; }
+  // Accept any code that matches VIP15-XXX format here (demo)
+  if(/^VIP15-[A-Z0-9]{2,8}$/.test(code)){
+    addPoints(1, `Admin:${code}`);
+    alert('Bonus applied (+1).');
+  } else {
+    alert('Invalid admin code format.');
+  }
+});
+
+/* ---------- Mini-game: Catch the Coin ---------- */
+let playing=false, frame=0, score=0, mult=1;
+let paddle = { x: gameC.width/2, y: gameC.height-22, w:92, h:12 };
+let drops = []; // {x,y,vy,type} type: 'coin','bomb','mult'
+let lastSpawn=0;
+
+function resetGame(){
+  score=0; mult=1; drops=[]; frame=0;
+  d('scoreTxt').textContent = score;
+  backBtn.disabled = true;
+}
+
+function spawn(){
+  const tRand = Math.random();
+  const type = tRand<0.70 ? 'coin' : (tRand<0.90 ? 'bomb' : 'mult');
+  const x = 20 + Math.random()*(gameC.width-40);
+  const vy = 2 + Math.random()*3 + frame*0.0008;
+  drops.push({x, y:-10, vy, type});
+}
+
+function draw(){
+  // bg
+  ctx.fillStyle = '#0c0e26'; ctx.fillRect(0,0,gameC.width,gameC.height);
+
+  // paddle
+  ctx.fillStyle = '#7f77ff'; ctx.fillRect(paddle.x-paddle.w/2, paddle.y, paddle.w, paddle.h);
+
+  // drops
+  for(let i=0;i<drops.length;i++){
+    const d0 = drops[i];
+    d0.y += d0.vy;
+    if(d0.type==='coin'){
+      ctx.font='24px system-ui'; ctx.fillText('🪙', d0.x-12, d0.y+8);
+    } else if(d0.type==='bomb'){
+      ctx.font='24px system-ui'; ctx.fillText('💣', d0.x-12, d0.y+8);
+    } else {
+      ctx.font='24px system-ui'; ctx.fillText('✨', d0.x-12, d0.y+8);
+    }
+    // collide with paddle
+    if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x - paddle.x) < (paddle.w/2)){
+      if(d0.type==='coin'){
+        score += (1*mult); playBeep(880, 80);
+      } else if(d0.type==='bomb'){
+        score = Math.max(0, score-3); playBeep(180, 90);
+      } else if(d0.type==='mult'){
+        mult = Math.min(4, mult+1); playBeep(520, 80);
+        // show small flash on paddle
+      }
+      d('scoreTxt').textContent = score;
+      drops.splice(i,1); i--;
+    } else if(d0.y > gameC.height+20){
+      drops.splice(i,1); i--;
+    }
+  }
+
+  // score text
+  ctx.fillStyle = 'rgba(255,255,255,.7)';
+  ctx.font='12px system-ui';
+  ctx.fillText(`x${mult} multiplier`, 10, 18);
+
+  if(playing){
+    frame++;
+    if(frame - lastSpawn > 24){ spawn(); lastSpawn=frame; }
+    requestAnimationFrame(draw);
+  } else {
+    // end screen overlay
+    ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,gameC.width,gameC.height);
+    ctx.fillStyle='#c7cbff'; ctx.font='16px system-ui';
+    ctx.fillText('Press START to play', gameC.width/2 - 80, gameC.height/2);
+  }
+}
+
+function endGame(){
+  playing=false;
+  backBtn.disabled = false;
+  // best
+  if(score > game.best){ game.best = score; save(K_GAME, game); }
+  d('bestTxt').textContent = game.best;
+  // convert score to daily mission points (once per day, up to +3)
+  const today = new Date().toISOString().slice(0,10);
+  if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; }
+  let award=0;
+  if(points.dailyGameCredit < 3){
+    if(score>=100) award=3;
+    else if(score>=50) award=2;
+    else if(score>=20) award=1;
+  }
+  if(award>0){
+    const available = 3 - points.dailyGameCredit;
+    const give = Math.min(award, available);
+    points.dailyGameCredit += give;
+    save(K_POINTS, points);
+    addPoints(give, `MiniGame:${today} score ${score}`);
+    alert(`Nice! You earned +${give} point(s) from today’s game.`);
+  }
+  updatePointsUI();
+  draw();
+}
+
+startBtn.addEventListener('click', ()=>{
+  if(!profile.username){ alert('Please save your profile first.'); return; }
+  playing=true; resetGame(); draw();
+  // auto end after 45 seconds
+  setTimeout(()=>{ if(playing){ endGame(); } }, 45000);
+});
+
+backBtn.addEventListener('click', ()=>{
+  // Back to menu = stop / show overlay
+  playing=false; draw();
+});
+
+/* Paddle control */
+function setPaddleFromEvent(evt){
+  const rect = gameC.getBoundingClientRect();
+  const cx = (evt.clientX ?? (evt.touches && evt.touches[0].clientX) ?? 0) - rect.left;
+  const scale = gameC.width / rect.width;
+  paddle.x = Math.max(46, Math.min(gameC.width-46, cx*scale));
+}
+
+gameC.addEventListener('mousemove', setPaddleFromEvent);
+gameC.addEventListener('touchstart', e=>{ setPaddleFromEvent(e); e.preventDefault(); }, {passive:false});
+gameC.addEventListener('touchmove', e=>{ setPaddleFromEvent(e); e.preventDefault(); }, {passive:false});
+
+/* Simple beeps using WebAudio (optional) */
+let audioCtx=null;
+function playBeep(freq, dur){
+  if(!soundChk.checked) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (dur/1000));
+    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + (dur/1000));
+  }catch(e){}
+}
+
+/* Boot */
+bestTxt.textContent = game.best;
+draw();
+refreshProfileUI();
+updatePointsUI();
+</script>
+</body>
+</html>
