@@ -12,9 +12,14 @@
     --ok:#aef7c1; --bad:#ffb3be; --gold:#ffd86a;
     --glow: 0 0 24px rgba(120,115,245,.55), 0 0 48px rgba(255,110,196,.35);
   }
-  *{box-sizing:border-box} html,body{height:100%} body{margin:0;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;background:
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0;color:var(--ink);
+    font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
+    background:
       radial-gradient(1100px 700px at 70% -10%, #1a1c3a 0%, #0f1129 60%, #0a0b1e 100%),
-      conic-gradient(from 180deg at 10% -20%, rgba(120,115,245,.12), transparent 30%);}
+      conic-gradient(from 180deg at 10% -20%, rgba(120,115,245,.12), transparent 30%);
+  }
   .wrap{max-width:1100px;margin:0 auto;padding:18px}
   .hdr{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
   .logo{font-weight:900;letter-spacing:.3px;font-size:20px;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(255,110,196,.18))}
@@ -30,7 +35,7 @@
   .card h3{margin:0 0 10px 0;font-size:16px}
   .mut{color:var(--mut);font-size:12px}
   .divider{height:1px;background:linear-gradient(90deg,transparent,#2a2e58 30%,#2a2e58 70%,transparent);margin:12px 0}
-  input[type="text"],input[type="email"]{width:100%;background:#0f1129;border:1px solid var(--ring);border-radius:10px;color:var(--ink);padding:10px 12px;outline:none}
+  input[type="text"]{width:100%;background:#0f1129;border:1px solid var(--ring);border-radius:10px;color:var(--ink);padding:10px 12px;outline:none}
 
   /* Gate modal */
   .mask{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:50}
@@ -116,30 +121,38 @@
     </div>
 
     <!-- RIGHT -->
-    <div class="card">
-      <h3>Your VIP Day Boost</h3>
-      <div class="row" style="justify-content:space-between">
-        <div>Total Points: <b id="ptsTotal">0</b></div>
-        <div class="mut">Game credit today: <b id="dailyCredit">0/3</b></div>
+    <div>
+      <div class="card">
+        <h3>Your VIP Day Boost</h3>
+        <div class="row" style="justify-content:space-between">
+          <div>Total Points: <b id="ptsTotal">0</b></div>
+          <div class="mut">Game credit today: <b id="dailyCredit">0/3</b></div>
+        </div>
+        <div class="meter"><div class="fill" id="fill"></div></div>
+        <div class="tiers">
+          <div class="tier"><h4>Tier 0 • 0–4</h4><p>Base reward</p></div>
+          <div class="tier"><h4>Tier 1 • 5–9</h4><p>Small boost</p></div>
+          <div class="tier"><h4>Tier 2 • 10–19</h4><p>Medium boost</p></div>
+          <div class="tier"><h4>Tier 3 • 20+</h4><p>Big boost</p></div>
+        </div>
+        <div class="divider"></div>
+        <h3>Leaderboard (verified only)</h3>
+        <div class="lb" id="leaderboard"><div class="mut">Loading…</div></div>
       </div>
-      <div class="meter"><div class="fill" id="fill"></div></div>
-      <div class="tiers">
-        <div class="tier"><h4>Tier 0 • 0–4</h4><p>Base reward</p></div>
-        <div class="tier"><h4>Tier 1 • 5–9</h4><p>Small boost</p></div>
-        <div class="tier"><h4>Tier 2 • 10–19</h4><p>Medium boost</p></div>
-        <div class="tier"><h4>Tier 3 • 20+</h4><p>Big boost</p></div>
-      </div>
-      <div class="divider"></div>
 
-      <h3>Leaderboard (verified only)</h3>
-      <div class="lb" id="leaderboard"><div class="mut">Loading…</div></div>
+      <!-- HISTORY -->
+      <div class="card" id="historyCard" style="margin-top:16px">
+        <h3>Your History (last 30 days)</h3>
+        <div id="historyWrap" class="mut">Loading...</div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 /* ========================= CONFIG ========================= */
-const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwq0hnRfnvKEz83e9JiM3xry-nwVTIztY6TZW_mWqJw13rCoPEn2z42ZT94M8bOC-dbZg/exec'; // e.g. https://script.google.com/macros/s/AKfycb.../exec
+/* Replace with your current Web App URL if changed */
+const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwvNhzW9d5sDdiLRpvdIN6-DrxEN6s2ieHJYBnXJ9cbXzOPtQxlyyuhBhI0hhX6JdTkrg/exec';
 const AVATARS = [
   'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
   'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png'
@@ -162,20 +175,18 @@ let game    = load(K_GAME,    { best:0 });
 
 /* ====================== DOM REFS ======================= */
 const d = id => document.getElementById(id);
-const gateMask = d('gateMask'), gateUsername = d('gateUsername'), gateEnterBtn = d('gateEnterBtn'), gateErr = d('gateErr'), gateTips = d('gateTips');
+const gateMask = d('gateMask'), gateUsername = d('gateUsername'), gateEnterBtn = d('gateEnterBtn'), gateErr = d('gateErr');
 const app = d('app'), topUsername = d('topUsername'), avatarImg = d('avatarImg'), verifyChip = d('verifyChip');
 const m_verified = d('m_verified'), m_checkin = d('m_checkin'), m_game = d('m_game'), checkinBtn = d('checkinBtn');
 const ptsTotal = d('ptsTotal'), fill = d('fill'), dailyCredit = d('dailyCredit');
 const gameWrap = d('gameWrap'), gameC = d('game'), scoreTxt = d('scoreTxt'), bestTxt = d('bestTxt'), startBtn = d('startBtn'), backBtn = d('backBtn'), soundChk = d('soundChk');
 const ctx = gameC.getContext('2d',{alpha:false});
 const leaderboardEl = d('leaderboard');
+const historyWrap = d('historyWrap');
 
 /* ===================== DATE HELPERS ===================== */
 function ymd(d=new Date()){ return [d.getFullYear(), d.getMonth()+1, d.getDate()] }
-function inEarnWindow(){
-  const [, , day] = ymd();
-  return day >= CAMPAIGN.startDay && day <= (CAMPAIGN.lockDay-1);
-}
+function inEarnWindow(){ const [, , day] = ymd(); return day >= CAMPAIGN.startDay && day <= (CAMPAIGN.lockDay-1); }
 function isVipDay(){ const [, , day] = ymd(); return day === CAMPAIGN.lockDay; }
 function isLocked(){ const [, , day] = ymd(); return day >= CAMPAIGN.resetDay; }
 
@@ -208,26 +219,30 @@ async function enterWithUsername(){
     profile.username = u;
     profile.createdAt = profile.createdAt || nowISO();
     profile.avatar = profile.avatar || AVATARS[0];
-    // If server already has totals, merge (cross-browser)
+
+    // Merge server snapshot → local (cross-browser consistency)
     mergeServerState(data);
-    // If not verified yet and never awarded, award +1 once
+
+    // First-time verify award (once only)
     if(!data.verified && !profile.verifiedAwarded){
       profile.verifiedUser = true;
-      profile.verifiedAwarded = true; // lifetime guard
+      profile.verifiedAwarded = true;
       addPoints(1, 'Verified Username');
-      syncToSheet('verify');
+      await syncToSheet('verify');
     } else if (data.verified) {
       profile.verifiedUser = true;
       profile.verifiedAwarded = true;
     }
+
     save(K_PROFILE, profile);
     refreshHeader();
     refreshMissionsUI();
     gateMask.style.display='none';
     app.style.display='block';
-    // Load leaderboard
+
+    // Pull leaderboard + history, then push a snapshot
     fetchLeaderboard();
-    // Post current snapshot
+    fetchHistory().then(data => renderHistory(data.days)).catch(()=>renderHistory([]));
     syncToSheet('enter');
   }catch(e){
     maskErr('Could not reach verification service. Try again.');
@@ -258,13 +273,11 @@ function refreshHeader(){
 function updatePointsUI(){
   ptsTotal.textContent = points.total;
   const maxTier=20; fill.style.width = Math.min(100, (points.total/maxTier)*100) + '%';
-  // reset daily credit if new day
   const today = new Date().toISOString().slice(0,10);
   if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; save(K_POINTS, points); }
   dailyCredit.textContent = `${points.dailyGameCredit}/3`;
 }
 function refreshMissionsUI(){
-  const dd = ymd()[2];
   if(isVipDay()){
     m_checkin.textContent = 'VIP Day — Missions locked';
     checkinBtn.disabled = true;
@@ -287,7 +300,7 @@ function addPoints(n, reason){
 }
 
 /* ===================== DAILY CHECK-IN ==================== */
-checkinBtn.addEventListener('click', ()=>{
+checkinBtn.addEventListener('click', async ()=>{
   if(!inEarnWindow()){ alert('Check-ins available only from 1–14.'); return; }
   const today = new Date().toISOString().slice(0,10);
   if(points.lastCheckDay === today){ alert('You already checked in today.'); return; }
@@ -295,7 +308,8 @@ checkinBtn.addEventListener('click', ()=>{
   addPoints(1, `Daily Check-in ${today}`);
   refreshMissionsUI();
   confettiBurst(gameWrap);
-  syncToSheet('checkin');
+  await syncToSheet('checkin');
+  fetchHistory().then(data => renderHistory(data.days)).catch(()=>{});
 });
 
 /* ========================= GAME ========================= */
@@ -303,6 +317,7 @@ let playing=false, frame=0, score=0, mult=1;
 let paddle = { x: gameC.width/2, y: gameC.height-22, w:100, h:12 };
 let drops=[], lastSpawn=0;
 let audioCtx=null;
+
 function playTone(freq, dur, type='sine', gain=0.06){
   if(!soundChk.checked) return;
   try{
@@ -317,7 +332,9 @@ function confettiBurst(container){
   const N=22;
   for(let i=0;i<N;i++){
     const s=document.createElement('div'); s.className='spark'; s.textContent='✦';
-    s.style.left=(container.getBoundingClientRect().width/2)+'px'; s.style.top='20px';
+    const rect = container.getBoundingClientRect();
+    s.style.left=(rect.width/2)+'px'; s.style.top='20px';
+    s.style.position='absolute';
     s.style.fontSize=(12+Math.random()*10)+'px'; s.style.color=`hsl(${Math.random()*360},90%,70%)`;
     container.appendChild(s);
     const angle=Math.random()*Math.PI*2; const dist=60+Math.random()*120;
@@ -330,7 +347,7 @@ function resetGame(){ score=0; mult=1; drops=[]; frame=0; scoreTxt.textContent=s
 function spawn(){
   const t=Math.random(); const type = t<0.70?'coin':(t<0.90?'bomb':'mult');
   const x = 20 + Math.random()*(gameC.width-40); const vy = 2 + Math.random()*3 + frame*0.0008;
-  drops.push({x,y:-10,vy,type});
+  drops.push({x:x, y:-10, vy, type});
 }
 function draw(){
   const grd=ctx.createLinearGradient(0,0,0,gameC.height); grd.addColorStop(0,'#0e133a'); grd.addColorStop(1,'#0a0c24');
@@ -353,7 +370,7 @@ function draw(){
   if(playing){ frame++; if(frame-lastSpawn>24){ spawn(); lastSpawn=frame; } requestAnimationFrame(draw); }
   else { ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,gameC.width,gameC.height); ctx.fillStyle='#c7cbff'; ctx.font='16px system-ui'; ctx.fillText('Press START to play', gameC.width/2-80, gameC.height/2); }
 }
-function endGame(){
+async function endGame(){
   playing=false; backBtn.disabled=false;
   if(score>game.best){ game.best=score; save(K_GAME,game); bestTxt.textContent=game.best; confettiBurst(gameWrap); }
   const today = new Date().toISOString().slice(0,10);
@@ -364,8 +381,10 @@ function endGame(){
     points.dailyGameCredit += give; save(K_POINTS, points);
     addPoints(give, `MiniGame:${today} score ${score}`);
     alert(`Nice! You earned +${give} point(s) today.`);
+    await syncToSheet('game');
+    fetchHistory().then(data => renderHistory(data.days)).catch(()=>{});
   }
-  updatePointsUI(); draw(); syncToSheet('game');
+  updatePointsUI(); draw();
 }
 startBtn.addEventListener('click', ()=>{
   if(!inEarnWindow()){ alert('Mini-game available 1–14 only.'); return; }
@@ -381,7 +400,7 @@ gameC.addEventListener('touchstart', e=>{ setPaddle(e); e.preventDefault(); }, {
 gameC.addEventListener('touchmove',  e=>{ setPaddle(e); e.preventDefault(); }, {passive:false});
 
 /* =================== SYNC: SHEET API =================== */
-function snapshot(){
+function snapshot(extra={}){
   return {
     username: profile.username || '',
     avatar: profile.avatar || AVATARS[0],
@@ -391,14 +410,15 @@ function snapshot(){
     dailyCredit: points.dailyGameCredit || 0,
     lastGameDay: points.lastGameDay || '',
     createdAt: profile.createdAt || '',
-    clientStamp: nowISO()
+    clientStamp: nowISO(),
+    ...extra // reason, source
   };
 }
-async function syncToSheet(source){
+async function syncToSheet(reason='sync', source='client'){
   if(!ADMIN_WEBHOOK || !profile.username) return;
   try{
-    await fetch(ADMIN_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(snapshot()) });
-  }catch(e){ /* ignore offline */ }
+    await fetch(ADMIN_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(snapshot({reason,source})) });
+  }catch(e){ /* offline OK */ }
 }
 async function fetchLeaderboard(){
   if(!ADMIN_WEBHOOK){ leaderboardEl.innerHTML='<div class="mut">No server.</div>'; return; }
@@ -416,17 +436,42 @@ async function fetchLeaderboard(){
   }catch(e){ leaderboardEl.innerHTML='<div class="mut">Leaderboard unavailable.</div>'; }
 }
 
+/* ===================== HISTORY (DailyLog) ===================== */
+async function fetchHistory(){
+  if(!ADMIN_WEBHOOK || !profile.username) return {days:[]};
+  const url = new URL(ADMIN_WEBHOOK);
+  url.searchParams.set('action','history');
+  url.searchParams.set('u', profile.username);
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) return {days:[]};
+  return res.json();
+}
+function renderHistory(days){
+  if(!days || !days.length){
+    historyWrap.innerHTML = '<div class="mut">No history yet.</div>';
+    return;
+  }
+  const rows = [...days].slice(-30).reverse().map(d => {
+    const items = d.items.map(it => {
+      const sign = it.delta>0 ? '+' : '';
+      return `<div>• ${sign}${it.delta} <span class="mut">— ${it.reason||'award'}</span></div>`;
+    }).join('');
+    const totSign = d.total>0?'+':'';
+    return `<div style="padding:8px;border-bottom:1px solid #2a2e58">
+              <div><b>${d.date}</b> — Total: ${totSign}${d.total}</div>
+              <div class="mut" style="margin-top:4px">${items}</div>
+            </div>`;
+  }).join('');
+  historyWrap.innerHTML = rows;
+}
+
 /* ========================= BOOT ========================= */
-function boot(){
-  // Always start at gate; if we already have an allowed username, prefill
+function drawBoot(){ bestTxt.textContent = game.best; updatePointsUI(); refreshMissionsUI(); draw(); }
+(function boot(){
   if(profile.username){ gateUsername.value = profile.username; }
   avatarImg.src = profile.avatar || AVATARS[0];
-  bestTxt.textContent = game.best;
-  updatePointsUI();
-  refreshMissionsUI();
-  draw();
-}
-boot();
+  drawBoot();
+})();
 </script>
 </body>
 </html>
