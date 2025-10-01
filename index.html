@@ -44,8 +44,15 @@
   .err{color:#ffb3be;font-size:12px}
 
   /* Header profile chip */
-  .profileChip{display:flex;align-items:center;gap:8px;background:#17173a;border:1px solid var(--ring);padding:6px 10px;border-radius:999px}
+  .profileChip{display:flex;align-items:center;gap:8px;background:#17173a;border:1px solid var(--ring);padding:6px 10px;border-radius:999px;cursor:pointer}
   .profileChip img{width:24px;height:24px;border-radius:50%}
+
+  /* Avatar picker */
+  .mask.sm{align-items:flex-end;padding:12px}
+  .sheet{background:#0f1129;border:1px solid #2a2e58;border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:680px;margin:0 auto}
+  .gridAva{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .gridAva img{width:100%;aspect-ratio:1/1;border-radius:10px;border:1px solid #2a2e58;cursor:pointer}
+  @media (max-width:680px){.gridAva{grid-template-columns:repeat(4,1fr)}}
 
   /* Meter */
   .meter{height:16px;border-radius:999px;background:#16173a;border:1px solid var(--ring);position:relative;overflow:hidden}
@@ -86,10 +93,22 @@
   </div>
 </div>
 
+<!-- ===== Avatar picker sheet ===== -->
+<div class="mask sm" id="avatarMask" style="display:none">
+  <div class="sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h3 style="margin:0">Choose your avatar</h3>
+      <button class="btn secondary" id="closeAvaBtn">Close</button>
+    </div>
+    <div class="gridAva" id="avaGrid"></div>
+    <div class="mut" style="margin-top:8px">Tip: click an image to select. Changes save instantly.</div>
+  </div>
+</div>
+
 <div class="wrap" id="app" style="display:none">
   <div class="hdr">
     <div class="logo">VIP Missions</div>
-    <div class="profileChip">
+    <div class="profileChip" id="profileChip" title="Click to change avatar">
       <img id="avatarImg" alt="" />
       <span id="topUsername">—</span>
       <span id="verifyChip" class="chip">Checking…</span>
@@ -153,10 +172,23 @@
 /* ========================= CONFIG ========================= */
 /* Replace with your current Web App URL if changed */
 const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwvNhzW9d5sDdiLRpvdIN6-DrxEN6s2ieHJYBnXJ9cbXzOPtQxlyyuhBhI0hhX6JdTkrg/exec';
+
+/* >>>> PUT YOUR 12 AVATAR LINKS HERE <<<< */
 const AVATARS = [
   'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
-  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png'
+  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png',
+  'https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png',
+  'https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png',
+  'https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png',
+  'https://ricomx.ft-crm.com/media-api/serve/65646abf-45f0-46b4-9c9c-f135f3b429e4_12.png',
+  'https://ricomx.ft-crm.com/media-api/serve/685901d2-f392-4d9f-83bf-b8f5ae4cf3bc_13.png',
+  'https://ricomx.ft-crm.com/media-api/serve/a3e8f9f5-851f-4048-b1ff-e7255de54266_14.png',
+  'https://ricomx.ft-crm.com/media-api/serve/92cde2cb-1afa-4c2e-b0f7-bf77f6b37a4a_15.png',
+  'https://ricomx.ft-crm.com/media-api/serve/1a77dbff-a836-4e7b-831f-77734198c725_16.png',
+  'https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png',
+  'https://ricomx.ft-crm.com/media-api/serve/ab8c0632-b1d4-41e5-be64-ba1e96d5ab1b_19.png'
 ];
+
 const CAMPAIGN = { startDay:1, lockDay:15, resetDay:16 }; // 1–14 earn, 15 VIP Day, 16+ locked
 
 /* ==================== STORAGE / STATE ==================== */
@@ -183,6 +215,7 @@ const gameWrap = d('gameWrap'), gameC = d('game'), scoreTxt = d('scoreTxt'), bes
 const ctx = gameC.getContext('2d',{alpha:false});
 const leaderboardEl = d('leaderboard');
 const historyWrap = d('historyWrap');
+const avatarMask = d('avatarMask'), avaGrid = d('avaGrid'), closeAvaBtn = d('closeAvaBtn'), profileChip = d('profileChip');
 
 /* ===================== DATE HELPERS ===================== */
 function ymd(d=new Date()){ return [d.getFullYear(), d.getMonth()+1, d.getDate()] }
@@ -218,16 +251,15 @@ async function enterWithUsername(){
     // Allowed → show app
     profile.username = u;
     profile.createdAt = profile.createdAt || nowISO();
-    profile.avatar = profile.avatar || AVATARS[0];
-
+    profile.avatar = profile.avatar || (AVATARS[0]||'');
     // Merge server snapshot → local (cross-browser consistency)
     mergeServerState(data);
 
-    // First-time verify award (once only)
+    // First-time verify award (once only, server-authoritative)
     if(!data.verified && !profile.verifiedAwarded){
       profile.verifiedUser = true;
       profile.verifiedAwarded = true;
-      addPoints(1, 'Verified Username');
+      addPoints(1, 'Verified Username', true); // true = silentSyncAfter
       await syncToSheet('verify');
     } else if (data.verified) {
       profile.verifiedUser = true;
@@ -240,9 +272,13 @@ async function enterWithUsername(){
     gateMask.style.display='none';
     app.style.display='block';
 
-    // Pull leaderboard + history, then push a snapshot
+    // Pull leaderboard + history, then hard-sync total from server if higher
     fetchLeaderboard();
-    fetchHistory().then(data => renderHistory(data.days)).catch(()=>renderHistory([]));
+    const hist = await fetchHistory();
+    renderHistory(hist.days);
+    await refreshTotalFromServerHistory(hist.days);
+
+    // Push a presence snapshot (doesn't change totals)
     syncToSheet('enter');
   }catch(e){
     maskErr('Could not reach verification service. Try again.');
@@ -260,13 +296,14 @@ function mergeServerState(p){
     points.lastGameDay = p.lastGameDay;
     points.dailyGameCredit = Number(p.dailyCredit||0);
   }
+  if(typeof p.verified === 'boolean'){ profile.verifiedUser = p.verified; }
   save(K_POINTS, points); save(K_GAME, game);
 }
 
 /* =================== HEADER / MISSIONS =================== */
 function refreshHeader(){
   topUsername.textContent = profile.username || '—';
-  avatarImg.src = profile.avatar || AVATARS[0];
+  avatarImg.src = profile.avatar || (AVATARS[0]||'');
   if(profile.verifiedUser){ verifyChip.textContent='Verified'; verifyChip.className='chip ok'; m_verified.className='chip ok'; }
   else { verifyChip.textContent='Unverified'; verifyChip.className='chip bad'; m_verified.className='chip'; }
 }
@@ -292,11 +329,39 @@ function refreshMissionsUI(){
 }
 
 /* ======================== POINTS ======================== */
-function addPoints(n, reason){
+function setTotalFromServerIfHigher(serverTotal){
+  if(typeof serverTotal !== 'number') return false;
+  if(serverTotal > (points.total||0)){
+    points.total = serverTotal;
+    save(K_POINTS, points);
+    updatePointsUI();
+    return true;
+  }
+  return false;
+}
+function sumHistoryDays(days){
+  if(!Array.isArray(days)) return 0;
+  return days.reduce((acc,d)=> acc + (Number(d.total)||0), 0);
+}
+async function refreshTotalFromServerHistory(daysMaybe){
+  try{
+    const days = Array.isArray(daysMaybe) ? daysMaybe : (await fetchHistory()).days;
+    const serverTotal = sumHistoryDays(days);
+    setTotalFromServerIfHigher(serverTotal);
+  }catch(e){}
+}
+async function addPoints(n, reason, silentAfter=false){
   points.total += n;
   points.logs.push({ts:nowISO(), n, reason});
   save(K_POINTS, points);
   updatePointsUI();
+  // Immediately sync, then refetch server total to unify across browsers
+  await syncToSheet('award');
+  if(!silentAfter){
+    const hist = await fetchHistory();
+    renderHistory(hist.days);
+    await refreshTotalFromServerHistory(hist.days);
+  }
 }
 
 /* ===================== DAILY CHECK-IN ==================== */
@@ -305,11 +370,10 @@ checkinBtn.addEventListener('click', async ()=>{
   const today = new Date().toISOString().slice(0,10);
   if(points.lastCheckDay === today){ alert('You already checked in today.'); return; }
   points.lastCheckDay = today; save(K_POINTS, points);
-  addPoints(1, `Daily Check-in ${today}`);
+  await addPoints(1, `Daily Check-in ${today}`);
   refreshMissionsUI();
   confettiBurst(gameWrap);
   await syncToSheet('checkin');
-  fetchHistory().then(data => renderHistory(data.days)).catch(()=>{});
 });
 
 /* ========================= GAME ========================= */
@@ -357,7 +421,7 @@ function draw(){
   for(let i=0;i<drops.length;i++){
     const d0=drops[i]; d0.y+=d0.vy; ctx.font='24px system-ui'; ctx.textBaseline='middle';
     if(d0.type==='coin'){ ctx.fillText('🪙', d0.x-12, d0.y); }
-    else if(d0.type==='bomb'){ ctx.fillText('💣', d0.x-12, d0.y); }
+    else if(d0.type==='bomb'){ ctx.fillText('💣', d0.x-12, d0.y); if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){ /* hit animation */ gameWrap.animate([{transform:'translate(0,0)'},{transform:'translate(-4px,0)'},{transform:'translate(4px,0)'},{transform:'translate(0,0)'}],{duration:180}); } }
     else { ctx.fillText('✨', d0.x-12, d0.y); }
     if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){
       if(d0.type==='coin'){ score += (1*mult); scoreTxt.textContent=score; playTone(920,80,'sine',0.07); }
@@ -379,10 +443,9 @@ async function endGame(){
   if(award>0){
     const give=Math.min(award, 3 - points.dailyGameCredit);
     points.dailyGameCredit += give; save(K_POINTS, points);
-    addPoints(give, `MiniGame:${today} score ${score}`);
+    await addPoints(give, `MiniGame:${today} score ${score}`);
     alert(`Nice! You earned +${give} point(s) today.`);
     await syncToSheet('game');
-    fetchHistory().then(data => renderHistory(data.days)).catch(()=>{});
   }
   updatePointsUI(); draw();
 }
@@ -403,7 +466,7 @@ gameC.addEventListener('touchmove',  e=>{ setPaddle(e); e.preventDefault(); }, {
 function snapshot(extra={}){
   return {
     username: profile.username || '',
-    avatar: profile.avatar || AVATARS[0],
+    avatar: profile.avatar || (AVATARS[0]||''),
     verifiedUser: !!profile.verifiedUser,
     points: points.total || 0,
     best: game.best || 0,
@@ -465,11 +528,35 @@ function renderHistory(days){
   historyWrap.innerHTML = rows;
 }
 
+/* ===================== AVATAR PICKER ===================== */
+function openAvatarPicker(){
+  // build grid once
+  if(!avaGrid.dataset.ready){
+    avaGrid.innerHTML = AVATARS.map((src,i)=>`<img src="${src}" alt="Avatar ${i+1}" data-idx="${i}">`).join('');
+    avaGrid.dataset.ready = '1';
+    avaGrid.addEventListener('click', async (e)=>{
+      const el = e.target.closest('img[data-idx]');
+      if(!el) return;
+      const idx = Number(el.dataset.idx)||0;
+      profile.avatar = AVATARS[idx] || profile.avatar;
+      save(K_PROFILE, profile);
+      avatarImg.src = profile.avatar;
+      confettiBurst(document.body);
+      await syncToSheet('avatar');
+      // keep sheet authoritative too
+    });
+  }
+  avatarMask.style.display='flex';
+}
+profileChip.addEventListener('click', openAvatarPicker);
+closeAvaBtn.addEventListener('click', ()=> avatarMask.style.display='none');
+avatarMask.addEventListener('click', (e)=>{ if(e.target===avatarMask) avatarMask.style.display='none'; });
+
 /* ========================= BOOT ========================= */
 function drawBoot(){ bestTxt.textContent = game.best; updatePointsUI(); refreshMissionsUI(); draw(); }
 (function boot(){
   if(profile.username){ gateUsername.value = profile.username; }
-  avatarImg.src = profile.avatar || AVATARS[0];
+  avatarImg.src = profile.avatar || (AVATARS[0]||'');
   drawBoot();
 })();
 </script>
