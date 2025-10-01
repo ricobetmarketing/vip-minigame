@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>VIP Missions — Gated Landing</title>
+<meta name="theme-color" content="#121125" />
 <style>
   :root{
     --bg:#0f1129; --card:#121125; --ring:#2a2e58;
@@ -74,6 +75,9 @@
   .lb th{color:#a4b0ff;text-align:left}
   .pos{width:40px;color:var(--gold);font-weight:800}
   .me{background:linear-gradient(90deg, rgba(120,115,245,.08), transparent); border-left:3px solid #7873f5}
+
+  /* Sync chip */
+  .sync{font-size:11px;color:#a4b0ff}
 </style>
 </head>
 <body>
@@ -107,7 +111,10 @@
 
 <div class="wrap" id="app" style="display:none">
   <div class="hdr">
-    <div class="logo">VIP Missions</div>
+    <div>
+      <div class="logo">VIP Missions</div>
+      <div class="sync" id="syncChip" style="display:none">Syncing…</div>
+    </div>
     <div class="profileChip" id="profileChip" title="Click to change avatar">
       <img id="avatarImg" alt="" />
       <span id="topUsername">—</span>
@@ -170,36 +177,26 @@
 
 <script>
 /* ========================= CONFIG ========================= */
-/* Replace with your current Web App URL if changed */
-const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwvNhzW9d5sDdiLRpvdIN6-DrxEN6s2ieHJYBnXJ9cbXzOPtQxlyyuhBhI0hhX6JdTkrg/exec';
+// Your Google Apps Script Web App URL (server authority)
+const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxWK49NXFW25x-oEJ_YmjALFUR4d63isCdApnhya_Z7LnFMCU4ZI78oIA9Wym6fa3Ul/exec';
 
-/* >>>> PUT YOUR 12 AVATAR LINKS HERE <<<< */
+// Replace with your 12 avatar URLs (you can paste your final links)
 const AVATARS = [
-  'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
-  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png',
-  'https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png',
-  'https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png',
-  'https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png',
-  'https://ricomx.ft-crm.com/media-api/serve/65646abf-45f0-46b4-9c9c-f135f3b429e4_12.png',
-  'https://ricomx.ft-crm.com/media-api/serve/685901d2-f392-4d9f-83bf-b8f5ae4cf3bc_13.png',
-  'https://ricomx.ft-crm.com/media-api/serve/a3e8f9f5-851f-4048-b1ff-e7255de54266_14.png',
-  'https://ricomx.ft-crm.com/media-api/serve/92cde2cb-1afa-4c2e-b0f7-bf77f6b37a4a_15.png',
-  'https://ricomx.ft-crm.com/media-api/serve/1a77dbff-a836-4e7b-831f-77734198c725_16.png',
-  'https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png',
-  'https://ricomx.ft-crm.com/media-api/serve/ab8c0632-b1d4-41e5-be64-ba1e96d5ab1b_19.png'
+  'https://example.com/ava1.png','https://example.com/ava2.png','https://example.com/ava3.png','https://example.com/ava4.png',
+  'https://example.com/ava5.png','https://example.com/ava6.png','https://example.com/ava7.png','https://example.com/ava8.png',
+  'https://example.com/ava9.png','https://example.com/ava10.png','https://example.com/ava11.png','https://example.com/ava12.png'
 ];
 
 const CAMPAIGN = { startDay:1, lockDay:15, resetDay:16 }; // 1–14 earn, 15 VIP Day, 16+ locked
 
 /* ==================== STORAGE / STATE ==================== */
-const K_PROFILE='vip_profile_gate_v1';
-const K_POINTS ='vip_points_gate_v1';
-const K_GAME   ='vip_game_gate_v1';
+const K_PROFILE='vip_profile_gate_v2';
+const K_POINTS ='vip_points_gate_v2';
+const K_GAME   ='vip_game_gate_v2';
 
 const nowISO = ()=> new Date().toISOString();
 const load = (k,d)=>{ try{return JSON.parse(localStorage.getItem(k)) ?? d;}catch(e){return d;} };
 const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
-const wipe = k => localStorage.removeItem(k);
 
 let profile = load(K_PROFILE, { username:'', avatar:AVATARS[0], createdAt:'', verifiedUser:false, verifiedAwarded:false });
 let points  = load(K_POINTS,  { total:0, logs:[], lastGameDay:'', dailyGameCredit:0, lastCheckDay:'' });
@@ -216,6 +213,7 @@ const ctx = gameC.getContext('2d',{alpha:false});
 const leaderboardEl = d('leaderboard');
 const historyWrap = d('historyWrap');
 const avatarMask = d('avatarMask'), avaGrid = d('avaGrid'), closeAvaBtn = d('closeAvaBtn'), profileChip = d('profileChip');
+const syncChip = d('syncChip');
 
 /* ===================== DATE HELPERS ===================== */
 function ymd(d=new Date()){ return [d.getFullYear(), d.getMonth()+1, d.getDate()] }
@@ -223,15 +221,51 @@ function inEarnWindow(){ const [, , day] = ymd(); return day >= CAMPAIGN.startDa
 function isVipDay(){ const [, , day] = ymd(); return day === CAMPAIGN.lockDay; }
 function isLocked(){ const [, , day] = ymd(); return day >= CAMPAIGN.resetDay; }
 
-/* =================== GATE: CHECK USER =================== */
-async function checkUserAllowed(username){
+/* =================== SERVER API HELPERS =================== */
+function showSync(on){ syncChip.style.display = on ? 'block' : 'none'; if(on) syncChip.textContent='Syncing…'; else syncChip.textContent=''; }
+async function apiGet(params){
   const url = new URL(ADMIN_WEBHOOK);
-  url.searchParams.set('action','checkUser');
-  url.searchParams.set('u', username);
+  Object.entries(params||{}).forEach(([k,v])=> url.searchParams.set(k,v));
   const res = await fetch(url.toString(), { cache:'no-store' });
   if(!res.ok) throw new Error('Network');
-  return res.json(); // {allowed, verified, points,best,dailyCredit,lastGameDay,createdAt}
+  return res.json();
 }
+async function checkUserAllowed(username){
+  return apiGet({action:'checkUser', u: username}); // {allowed, verified, avatar?, lifetimePoints?, ...}
+}
+async function fetchProfile(){
+  return apiGet({action:'profile', u: profile.username}); // {verified, avatar, lifetimePoints, best, dailyCredit}
+}
+async function fetchHistory(){
+  return apiGet({action:'history', u: profile.username}); // {days:[{date,total,items:[{delta,reason}]}]}
+}
+async function fetchLeaderboard(){
+  try{
+    const rows = await apiGet({action:'leaderboard'});
+    if(!Array.isArray(rows) || !rows.length){ leaderboardEl.innerHTML='<div class="mut">No verified entries yet.</div>'; return; }
+    const me = (profile.username||'').toLowerCase();
+    const html = [
+      '<table><thead><tr><th class="pos">#</th><th>Player</th><th>Points</th><th>Best</th></tr></thead><tbody>',
+      ...rows.map((r,i)=>`<tr${String(r.username||'').toLowerCase()===me?' class="me"':''}><td class="pos">${i+1}</td><td>${r.username}</td><td>${r.points}</td><td>${r.best}</td></tr>`),
+      '</tbody></table>'
+    ].join('');
+    leaderboardEl.innerHTML = html;
+  }catch(e){ leaderboardEl.innerHTML='<div class="mut">Leaderboard unavailable.</div>'; }
+}
+async function postEvent({type, delta=0, meta={}, ymd, eventId}){
+  if(!ADMIN_WEBHOOK || !profile.username) return {ok:false};
+  showSync(true);
+  try{
+    const res = await fetch(ADMIN_WEBHOOK, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username: profile.username, ymd: ymd || new Date().toISOString().slice(0,10), type, delta, meta, eventId: eventId || `${type}-${Date.now()}` })
+    });
+    const data = res.ok ? await res.json() : {ok:false};
+    return data;
+  } finally { showSync(false); }
+}
+
+/* =================== GATE: CHECK USER =================== */
 function maskErr(msg){ gateErr.textContent = msg; gateErr.style.display='block'; }
 function hideErr(){ gateErr.style.display='none'; }
 
@@ -248,57 +282,33 @@ async function enterWithUsername(){
       maskErr('Username not on VIP Allowlist. Please contact support.');
       return;
     }
-    // Allowed → show app
-    profile.username = u;
-    profile.createdAt = profile.createdAt || nowISO();
-    profile.avatar = profile.avatar || (AVATARS[0]||'');
-    // Merge server snapshot → local (cross-browser consistency)
-    mergeServerState(data);
+    // Allowed → set profile baseline
+    profile.username = u; profile.createdAt = profile.createdAt || nowISO();
+    if (data.avatar) profile.avatar = data.avatar;
 
-    // First-time verify award (once only, server-authoritative)
-    if(!data.verified && !profile.verifiedAwarded){
-      profile.verifiedUser = true;
-      profile.verifiedAwarded = true;
-      addPoints(1, 'Verified Username', true); // true = silentSyncAfter
-      await syncToSheet('verify');
-    } else if (data.verified) {
-      profile.verifiedUser = true;
-      profile.verifiedAwarded = true;
+    // Pull authoritative profile (lifetime totals)
+    const prof = await fetchProfile();
+    if (prof) {
+      profile.verifiedUser = !!prof.verified; if (prof.avatar) profile.avatar = prof.avatar;
+      points.total = Number(prof.lifetimePoints||0);
+      game.best = Number(prof.best||0);
+      points.dailyGameCredit = Number(prof.dailyCredit||0);
+      save(K_PROFILE, profile); save(K_POINTS, points); save(K_GAME, game);
     }
 
-    save(K_PROFILE, profile);
-    refreshHeader();
-    refreshMissionsUI();
-    gateMask.style.display='none';
-    app.style.display='block';
+    refreshHeader(); updatePointsUI();
+    gateMask.style.display='none'; app.style.display='block';
 
-    // Pull leaderboard + history, then hard-sync total from server if higher
+    // Load UI data
     fetchLeaderboard();
-    const hist = await fetchHistory();
-    renderHistory(hist.days);
-    await refreshTotalFromServerHistory(hist.days);
+    fetchHistory().then(h=> renderHistory(h.days)).catch(()=> renderHistory([]));
 
-    // Push a presence snapshot (doesn't change totals)
-    syncToSheet('enter');
-  }catch(e){
-    maskErr('Could not reach verification service. Try again.');
-  }
+  }catch(e){ maskErr('Could not reach verification service. Try again.'); }
 }
+
 gateEnterBtn.addEventListener('click', enterWithUsername);
-gateUsername.addEventListener('keydown', e=>{ if(e.key==='Enter') enterWithUsername(); });
 
-/* ============ MERGE SERVER → LOCAL (sync) ============ */
-function mergeServerState(p){
-  if(!p) return;
-  if(typeof p.points === 'number' && p.points > (points.total||0)) points.total = p.points;
-  if(typeof p.best === 'number'   && p.best > (game.best||0))       game.best = p.best;
-  if(p.lastGameDay && (!points.lastGameDay || p.lastGameDay > points.lastGameDay)){
-    points.lastGameDay = p.lastGameDay;
-    points.dailyGameCredit = Number(p.dailyCredit||0);
-  }
-  if(typeof p.verified === 'boolean'){ profile.verifiedUser = p.verified; }
-  save(K_POINTS, points); save(K_GAME, game);
-}
+gateUsername.addEventListener('keydown', e=>{ if(e.key==='Enter') enterWithUsername(); });
 
 /* =================== HEADER / MISSIONS =================== */
 function refreshHeader(){
@@ -332,36 +342,10 @@ function refreshMissionsUI(){
 function setTotalFromServerIfHigher(serverTotal){
   if(typeof serverTotal !== 'number') return false;
   if(serverTotal > (points.total||0)){
-    points.total = serverTotal;
-    save(K_POINTS, points);
-    updatePointsUI();
+    points.total = serverTotal; save(K_POINTS, points); updatePointsUI();
     return true;
   }
   return false;
-}
-function sumHistoryDays(days){
-  if(!Array.isArray(days)) return 0;
-  return days.reduce((acc,d)=> acc + (Number(d.total)||0), 0);
-}
-async function refreshTotalFromServerHistory(daysMaybe){
-  try{
-    const days = Array.isArray(daysMaybe) ? daysMaybe : (await fetchHistory()).days;
-    const serverTotal = sumHistoryDays(days);
-    setTotalFromServerIfHigher(serverTotal);
-  }catch(e){}
-}
-async function addPoints(n, reason, silentAfter=false){
-  points.total += n;
-  points.logs.push({ts:nowISO(), n, reason});
-  save(K_POINTS, points);
-  updatePointsUI();
-  // Immediately sync, then refetch server total to unify across browsers
-  await syncToSheet('award');
-  if(!silentAfter){
-    const hist = await fetchHistory();
-    renderHistory(hist.days);
-    await refreshTotalFromServerHistory(hist.days);
-  }
 }
 
 /* ===================== DAILY CHECK-IN ==================== */
@@ -369,11 +353,17 @@ checkinBtn.addEventListener('click', async ()=>{
   if(!inEarnWindow()){ alert('Check-ins available only from 1–14.'); return; }
   const today = new Date().toISOString().slice(0,10);
   if(points.lastCheckDay === today){ alert('You already checked in today.'); return; }
-  points.lastCheckDay = today; save(K_POINTS, points);
-  await addPoints(1, `Daily Check-in ${today}`);
-  refreshMissionsUI();
-  confettiBurst(gameWrap);
-  await syncToSheet('checkin');
+  const r = await postEvent({type:'checkin', delta:1, ymd:today});
+  if (r?.ok){
+    points.lastCheckDay = today;
+    if (typeof r.lifetimePoints === 'number') setTotalFromServerIfHigher(r.lifetimePoints);
+    // refresh exact daily credit/profile
+    try{ const prof = await fetchProfile(); if (prof){ points.dailyGameCredit = Number(prof.dailyCredit||0); save(K_POINTS, points); updatePointsUI(); } }catch(e){}
+    refreshMissionsUI();
+    confettiBurst(gameWrap);
+  } else {
+    alert('Check-in failed. Please try again.');
+  }
 });
 
 /* ========================= GAME ========================= */
@@ -421,7 +411,7 @@ function draw(){
   for(let i=0;i<drops.length;i++){
     const d0=drops[i]; d0.y+=d0.vy; ctx.font='24px system-ui'; ctx.textBaseline='middle';
     if(d0.type==='coin'){ ctx.fillText('🪙', d0.x-12, d0.y); }
-    else if(d0.type==='bomb'){ ctx.fillText('💣', d0.x-12, d0.y); if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){ /* hit animation */ gameWrap.animate([{transform:'translate(0,0)'},{transform:'translate(-4px,0)'},{transform:'translate(4px,0)'},{transform:'translate(0,0)'}],{duration:180}); } }
+    else if(d0.type==='bomb'){ ctx.fillText('💣', d0.x-12, d0.y); if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){ gameWrap.animate([{transform:'translate(0,0)'},{transform:'translate(-4px,0)'},{transform:'translate(4px,0)'},{transform:'translate(0,0)'}],{duration:180}); } }
     else { ctx.fillText('✨', d0.x-12, d0.y); }
     if(d0.y>paddle.y-10 && d0.y<paddle.y+20 && Math.abs(d0.x-paddle.x)<(paddle.w/2)){
       if(d0.type==='coin'){ score += (1*mult); scoreTxt.textContent=score; playTone(920,80,'sine',0.07); }
@@ -436,16 +426,20 @@ function draw(){
 }
 async function endGame(){
   playing=false; backBtn.disabled=false;
-  if(score>game.best){ game.best=score; save(K_GAME,game); bestTxt.textContent=game.best; confettiBurst(gameWrap); }
+  if(score>game.best){
+    game.best=score; save(K_GAME,game); bestTxt.textContent=game.best; confettiBurst(gameWrap);
+    postEvent({type:'gameBest', delta:0, meta:{best:game.best}});
+  }
   const today = new Date().toISOString().slice(0,10);
   if(points.lastGameDay !== today){ points.lastGameDay=today; points.dailyGameCredit=0; }
   let award=0; if(points.dailyGameCredit<3){ if(score>=100)award=3; else if(score>=50)award=2; else if(score>=20)award=1; }
   if(award>0){
-    const give=Math.min(award, 3 - points.dailyGameCredit);
-    points.dailyGameCredit += give; save(K_POINTS, points);
-    await addPoints(give, `MiniGame:${today} score ${score}`);
-    alert(`Nice! You earned +${give} point(s) today.`);
-    await syncToSheet('game');
+    const r = await postEvent({type:'gameAward', delta:award, ymd:today});
+    if (r?.ok){
+      if (typeof r.lifetimePoints === 'number') setTotalFromServerIfHigher(r.lifetimePoints);
+      try{ const prof = await fetchProfile(); if (prof){ points.dailyGameCredit = Number(prof.dailyCredit||0); save(K_POINTS, points); updatePointsUI(); } }catch(e){}
+      alert(`Nice! You earned +${Math.min(award,3)} point(s) today.`);
+    }
   }
   updatePointsUI(); draw();
 }
@@ -462,60 +456,11 @@ gameC.addEventListener('mousemove', setPaddle);
 gameC.addEventListener('touchstart', e=>{ setPaddle(e); e.preventDefault(); }, {passive:false});
 gameC.addEventListener('touchmove',  e=>{ setPaddle(e); e.preventDefault(); }, {passive:false});
 
-/* =================== SYNC: SHEET API =================== */
-function snapshot(extra={}){
-  return {
-    username: profile.username || '',
-    avatar: profile.avatar || (AVATARS[0]||''),
-    verifiedUser: !!profile.verifiedUser,
-    points: points.total || 0,
-    best: game.best || 0,
-    dailyCredit: points.dailyGameCredit || 0,
-    lastGameDay: points.lastGameDay || '',
-    createdAt: profile.createdAt || '',
-    clientStamp: nowISO(),
-    ...extra // reason, source
-  };
-}
-async function syncToSheet(reason='sync', source='client'){
-  if(!ADMIN_WEBHOOK || !profile.username) return;
-  try{
-    await fetch(ADMIN_WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(snapshot({reason,source})) });
-  }catch(e){ /* offline OK */ }
-}
-async function fetchLeaderboard(){
-  if(!ADMIN_WEBHOOK){ leaderboardEl.innerHTML='<div class="mut">No server.</div>'; return; }
-  try{
-    const res = await fetch(ADMIN_WEBHOOK + '?action=leaderboard', { cache:'no-store' });
-    const rows = await res.json();
-    if(!Array.isArray(rows) || !rows.length){ leaderboardEl.innerHTML='<div class="mut">No verified entries yet.</div>'; return; }
-    const me = profile.username;
-    const html = [
-      '<table><thead><tr><th class="pos">#</th><th>Player</th><th>Points</th><th>Best</th></tr></thead><tbody>',
-      ...rows.map((r,i)=>`<tr${r.username===me?' class="me"':''}><td class="pos">${i+1}</td><td>${r.username}</td><td>${r.points}</td><td>${r.best}</td></tr>`),
-      '</tbody></table>'
-    ].join('');
-    leaderboardEl.innerHTML = html;
-  }catch(e){ leaderboardEl.innerHTML='<div class="mut">Leaderboard unavailable.</div>'; }
-}
-
-/* ===================== HISTORY (DailyLog) ===================== */
-async function fetchHistory(){
-  if(!ADMIN_WEBHOOK || !profile.username) return {days:[]};
-  const url = new URL(ADMIN_WEBHOOK);
-  url.searchParams.set('action','history');
-  url.searchParams.set('u', profile.username);
-  const res = await fetch(url, {cache:'no-store'});
-  if(!res.ok) return {days:[]};
-  return res.json();
-}
+/* ===================== HISTORY (DailyLog UI) ===================== */
 function renderHistory(days){
-  if(!days || !days.length){
-    historyWrap.innerHTML = '<div class="mut">No history yet.</div>';
-    return;
-  }
+  if(!days || !days.length){ historyWrap.innerHTML = '<div class="mut">No history yet.</div>'; return; }
   const rows = [...days].slice(-30).reverse().map(d => {
-    const items = d.items.map(it => {
+    const items = (d.items||[]).map(it => {
       const sign = it.delta>0 ? '+' : '';
       return `<div>• ${sign}${it.delta} <span class="mut">— ${it.reason||'award'}</span></div>`;
     }).join('');
@@ -530,20 +475,15 @@ function renderHistory(days){
 
 /* ===================== AVATAR PICKER ===================== */
 function openAvatarPicker(){
-  // build grid once
   if(!avaGrid.dataset.ready){
     avaGrid.innerHTML = AVATARS.map((src,i)=>`<img src="${src}" alt="Avatar ${i+1}" data-idx="${i}">`).join('');
     avaGrid.dataset.ready = '1';
     avaGrid.addEventListener('click', async (e)=>{
-      const el = e.target.closest('img[data-idx]');
-      if(!el) return;
+      const el = e.target.closest('img[data-idx]'); if(!el) return;
       const idx = Number(el.dataset.idx)||0;
       profile.avatar = AVATARS[idx] || profile.avatar;
-      save(K_PROFILE, profile);
-      avatarImg.src = profile.avatar;
-      confettiBurst(document.body);
-      await syncToSheet('avatar');
-      // keep sheet authoritative too
+      save(K_PROFILE, profile); avatarImg.src = profile.avatar; confettiBurst(document.body);
+      await postEvent({type:'avatar', delta:0, meta:{avatar: profile.avatar}});
     });
   }
   avatarMask.style.display='flex';
