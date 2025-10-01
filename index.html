@@ -36,7 +36,7 @@
   .card h3{margin:0 0 10px 0;font-size:16px}
   .mut{color:var(--mut);font-size:12px}
   .divider{height:1px;background:linear-gradient(90deg,transparent,#2a2e58 30%,#2a2e58 70%,transparent);margin:12px 0}
-  input[type="text"]{width:100%;background:#0f1129;border:1px solid var(--ring);border-radius:10px;color:var(--ink);padding:10px 12px;outline:none}
+  input[type="text"]{width:100%;background:#0f1129;border:1px solid var(--ring);border-radius:10px;color:#var(--ink);padding:10px 12px;outline:none}
 
   /* Gate modal */
   .mask{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:50}
@@ -177,14 +177,23 @@
 
 <script>
 /* ========================= CONFIG ========================= */
-// Your Google Apps Script Web App URL (server authority)
+// IMPORTANT: paste your Web App deployment URL here
 const ADMIN_WEBHOOK = 'https://script.google.com/macros/s/AKfycby88EZHRa7BCP-jJDzc3l7qKPTbFc1vsR5nUA-G0RteEycoP6nVQJpUtVpItvYUSIDSRQ/exec';
 
-// Replace with your 12 avatar URLs (you can paste your final links)
+// Your 12 avatar URLs
 const AVATARS = [
-  'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png','https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png','https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png','https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png',
-  'https://ricomx.ft-crm.com/media-api/serve/6959ee62-92fa-4192-a2d6-f678a4934b4f_8.png','https://ricomx.ft-crm.com/media-api/serve/587f1afe-0e39-4f76-8715-48496452cfdf_7.png','https://ricomx.ft-crm.com/media-api/serve/596c02c5-ad1c-42b7-9fb2-da6df154d35b_6.png','https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png',
-  'https://ricomx.ft-crm.com/media-api/serve/1a77dbff-a836-4e7b-831f-77734198c725_16.png','https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png','https://ricomx.ft-crm.com/media-api/serve/ab8c0632-b1d4-41e5-be64-ba1e96d5ab1b_19.png','https://ricomx.ft-crm.com/media-api/serve/a450b16e-9310-4e83-ae66-ea71822a218b_9.png'
+  'https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png',
+  'https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png',
+  'https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png',
+  'https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png',
+  'https://ricomx.ft-crm.com/media-api/serve/6959ee62-92fa-4192-a2d6-f678a4934b4f_8.png',
+  'https://ricomx.ft-crm.com/media-api/serve/587f1afe-0e39-4f76-8715-48496452cfdf_7.png',
+  'https://ricomx.ft-crm.com/media-api/serve/596c02c5-ad1c-42b7-9fb2-da6df154d35b_6.png',
+  'https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png',
+  'https://ricomx.ft-crm.com/media-api/serve/1a77dbff-a836-4e7b-831f-77734198c725_16.png',
+  'https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png',
+  'https://ricomx.ft-crm.com/media-api/serve/ab8c0632-b1d4-41e5-be64-ba1e96d5ab1b_19.png',
+  'https://ricomx.ft-crm.com/media-api/serve/a450b16e-9310-4e83-ae66-ea71822a218b_9.png'
 ];
 
 const CAMPAIGN = { startDay:1, lockDay:15, resetDay:16 }; // 1–14 earn, 15 VIP Day, 16+ locked
@@ -231,13 +240,13 @@ async function apiGet(params){
   return res.json();
 }
 async function checkUserAllowed(username){
-  return apiGet({action:'checkUser', u: username}); // {allowed, verified, avatar?, lifetimePoints?, ...}
+  return apiGet({action:'checkUser', u: username});
 }
 async function fetchProfile(){
-  return apiGet({action:'profile', u: profile.username}); // {verified, avatar, lifetimePoints, best, dailyCredit}
+  return apiGet({action:'profile', u: profile.username});
 }
 async function fetchHistory(){
-  return apiGet({action:'history', u: profile.username}); // {days:[{date,total,items:[{delta,reason}]}]}
+  return apiGet({action:'history', u: profile.username});
 }
 async function fetchLeaderboard(){
   try{
@@ -253,15 +262,24 @@ async function fetchLeaderboard(){
   }catch(e){ leaderboardEl.innerHTML='<div class="mut">Leaderboard unavailable.</div>'; }
 }
 async function postEvent({type, delta=0, meta={}, ymd, eventId}){
-  if(!ADMIN_WEBHOOK || !profile.username) return {ok:false};
+  if (!ADMIN_WEBHOOK || !profile.username) return {ok:false, error:'no_url_or_user'};
   showSync(true);
   try{
     const res = await fetch(ADMIN_WEBHOOK, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ username: profile.username, ymd: ymd || new Date().toISOString().slice(0,10), type, delta, meta, eventId: eventId || `${type}-${Date.now()}` })
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        username: profile.username,
+        ymd: ymd || new Date().toISOString().slice(0,10),
+        type, delta, meta,
+        eventId: eventId || `${type}-${Date.now()}`
+      })
     });
-    const data = res.ok ? await res.json() : {ok:false};
-    return data;
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch { return {ok:false, error:'non_json', preview: text.slice(0,160)}; }
+  } catch (e) {
+    return {ok:false, error:String(e)};
   } finally { showSync(false); }
 }
 
@@ -282,14 +300,26 @@ async function enterWithUsername(){
       maskErr('Username not on VIP Allowlist. Please contact support.');
       return;
     }
-    // Allowed → set profile baseline
-    profile.username = u; profile.createdAt = profile.createdAt || nowISO();
+
+    // Allowed → baseline profile
+    profile.username = u;
+    profile.createdAt = profile.createdAt || nowISO();
     if (data.avatar) profile.avatar = data.avatar;
 
-    // Pull authoritative profile (lifetime totals)
+    // Award the one-time "Verified +1" (server will dedupe if already given)
+    try {
+      const vr = await postEvent({ type:'verify', delta:1 });
+      if (vr?.ok && typeof vr.lifetimePoints === 'number') {
+        points.total = vr.lifetimePoints;
+        save(K_POINTS, points);
+      }
+    } catch (e) {}
+
+    // Pull authoritative profile (lifetime totals, verified flag, best, daily credit)
     const prof = await fetchProfile();
     if (prof) {
-      profile.verifiedUser = !!prof.verified; if (prof.avatar) profile.avatar = prof.avatar;
+      profile.verifiedUser = !!prof.verified;
+      if (prof.avatar) profile.avatar = prof.avatar;
       points.total = Number(prof.lifetimePoints||0);
       game.best = Number(prof.best||0);
       points.dailyGameCredit = Number(prof.dailyCredit||0);
@@ -299,15 +329,14 @@ async function enterWithUsername(){
     refreshHeader(); updatePointsUI();
     gateMask.style.display='none'; app.style.display='block';
 
-    // Load UI data
     fetchLeaderboard();
     fetchHistory().then(h=> renderHistory(h.days)).catch(()=> renderHistory([]));
-
-  }catch(e){ maskErr('Could not reach verification service. Try again.'); }
+  }catch(e){
+    maskErr('Could not reach verification service. Try again.');
+  }
 }
 
 gateEnterBtn.addEventListener('click', enterWithUsername);
-
 gateUsername.addEventListener('keydown', e=>{ if(e.key==='Enter') enterWithUsername(); });
 
 /* =================== HEADER / MISSIONS =================== */
@@ -357,12 +386,11 @@ checkinBtn.addEventListener('click', async ()=>{
   if (r?.ok){
     points.lastCheckDay = today;
     if (typeof r.lifetimePoints === 'number') setTotalFromServerIfHigher(r.lifetimePoints);
-    // refresh exact daily credit/profile
     try{ const prof = await fetchProfile(); if (prof){ points.dailyGameCredit = Number(prof.dailyCredit||0); save(K_POINTS, points); updatePointsUI(); } }catch(e){}
     refreshMissionsUI();
     confettiBurst(gameWrap);
   } else {
-    alert('Check-in failed. Please try again.');
+    alert('Check-in failed: ' + (r?.error || 'unknown'));
   }
 });
 
@@ -439,6 +467,8 @@ async function endGame(){
       if (typeof r.lifetimePoints === 'number') setTotalFromServerIfHigher(r.lifetimePoints);
       try{ const prof = await fetchProfile(); if (prof){ points.dailyGameCredit = Number(prof.dailyCredit||0); save(K_POINTS, points); updatePointsUI(); } }catch(e){}
       alert(`Nice! You earned +${Math.min(award,3)} point(s) today.`);
+    } else {
+      alert('Game award failed: ' + (r?.error || 'unknown'));
     }
   }
   updatePointsUI(); draw();
