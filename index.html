@@ -116,7 +116,7 @@
       <svg class="ico" viewBox="0 0 24 24"><path d="M12 2l3 6 6 .9-4.5 4.4 1 6.3L12 17l-5.5 2.6 1-6.3L3 8.9 9 8z"/></svg><span>VIP Day</span>
     </button>
     <button class="itab" data-tab="checkin" data-idx="2" aria-label="Check-in">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v4H4zM4 16h16v4H4z"/></svg><span>Check‑in</span>
+      <svg class="ico" viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v4H4zM4 16h16v4H4z"/></svg><span>Check-in</span>
     </button>
     <button class="itab" data-tab="leaderboard" data-idx="3" aria-label="Leaderboard">
       <svg class="ico" viewBox="0 0 24 24"><path d="M7 22V11a2 2 0 0 1 2-2h6v13H7zM3 22v-7a2 2 0 0 1 2-2h1v9H3zM17 22V5a2 2 0 0 1 2-2h2v19h-4z"/></svg><span>Leaders</span>
@@ -148,9 +148,9 @@
 
 <script>
 /* ===================== CONFIG (EDIT THESE) ===================== */
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyz26tOqI4dn5V1yFWPKY0HYmYX1-GsP8y4aYrgEyQ19x0hj5qp41N5fSh2j1jDeFLlUA/exec"; // ← your Apps Script Web App
-const RANK_SHEET_ID = "1_E9-40_zTWBWusgGukGrqf83iF0_8qqkItS7chWK_G8"; // ← Google Sheet ID for leaderboard
-const RANK_SHEET_GID = "393171014"; // ← GID of the tab
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyz26tOqI4dn5V1yFWPKY0HYmYX1-GsP8y4aYrgEyQ19x0hj5qp41N5fSh2j1jDeFLlUA/exec";
+const RANK_SHEET_ID = "1_E9-40_zTWBWusgGukGrqf83iF0_8qqkItS7chWK_G8";
+const RANK_SHEET_GID = "393171014";
 const VIP_DAY_OF_MONTH = 15; // monthly on the 15th
 const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kuala_Lumpur';
 /* =============================================================== */
@@ -168,15 +168,46 @@ const isLinked=()=> !!localStorage.getItem('auth_token');
 function openGate(){ $('#gate').classList.add('show'); }
 function closeGate(){ $('#gate').classList.remove('show'); }
 
+/* Ensure we have profile (name) for a stored token */
+async function ensureProfile(){
+  const token = localStorage.getItem('auth_token');
+  const haveName = !!localStorage.getItem('player_name');
+  if (!token || haveName) return;
+  try{
+    const r = await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({kind:'whoami', token})
+    });
+    const j = await r.json();
+    if (j.ok && j.user){
+      const name = j.user.rico_username || j.user.telegram_username || 'player';
+      localStorage.setItem('player_name', name);
+      localStorage.setItem('tg_id', String(j.user.telegram_id||''));
+      localStorage.setItem('tg_username', j.user.telegram_username||'');
+    }
+  }catch(e){}
+}
+
+/* Manual bind (fallback) */
 async function manualUnlock(username){
   try{
-    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      kind:'telegram',ricobet_username:username,data:{id: localStorage.getItem('tg_id')||('guest-'+crypto.randomUUID()), username: localStorage.getItem('tg_username')||''}
-    })});
+    const r=await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        kind:'telegram',
+        ricobet_username:username,
+        data:{id: localStorage.getItem('tg_id')||('guest-'+crypto.randomUUID()),
+              username: localStorage.getItem('tg_username')||''}
+      })
+    });
     const j=await r.json();
     if(j.ok && j.token){
       localStorage.setItem('auth_token', j.token);
-      localStorage.setItem('player_name', j.user?.ricoUsername || j.user?.username || username || 'player');
+      // backend returns rico_username (not ricoUsername)
+      const name = (j.user && (j.user.rico_username || j.user.username)) || username || 'player';
+      localStorage.setItem('player_name', name);
       closeGate();
       render();
     }else alert('Unlock failed');
@@ -210,6 +241,7 @@ document.addEventListener('click',e=>{
     }catch(e){}
   }
 })();
+ensureProfile(); // make sure name is filled even without ?token
 
 /* ===== sticky sound (optional) ===== */
 (function(){
@@ -245,13 +277,14 @@ $all('nav.iconnav .itab').forEach(btn=>{
 });
 
 function setHeader(){
-  const t = state.tab==='vipday' ? 'VIP Day' : state.tab==='checkin' ? 'Daily Check‑in' : state.tab==='leaderboard' ? 'Leaderboard' : 'VIP Day Hub';
+  const t = state.tab==='vipday' ? 'VIP Day' : state.tab==='checkin' ? 'Daily Check-in' : state.tab==='leaderboard' ? 'Leaderboard' : 'VIP Day Hub';
   $('#hdrRight').textContent = new Date().toLocaleDateString(undefined,{weekday:'short', day:'2-digit', month:'short'});
   document.querySelectorAll('.itab').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));
   moveInk(parseInt(document.querySelector('.itab.active')?.dataset.idx||'0',10));
 }
 
-function render(){
+async function render(){
+  await ensureProfile(); // make sure name is ready
   setHeader();
   if(state.tab==='vipday') return renderVIPDay();
   if(state.tab==='checkin') return renderCheckin();
@@ -268,14 +301,14 @@ function renderHome(){
       <p>This hub runs <b>every month</b>. Check in daily to build your streak and unlock better rewards on <span class="badge">VIP Day (${VIP_DAY_OF_MONTH})</span>.</p>
       <div class="grid2" style="margin-top:8px">
         <div class="vipBox"><b>VIP Day</b><p class="small">Mini game unlocks on day <b>${VIP_DAY_OF_MONTH}</b> (local time: ${esc(TIMEZONE)}).</p></div>
-        <div class="vipBox"><b>Check‑in</b><p class="small">Tap once per day. Earn points and improve your VIP Day tier.</p></div>
+        <div class="vipBox"><b>Check-in</b><p class="small">Tap once per day. Earn points and improve your VIP Day tier.</p></div>
       </div>
     </div>
     <div class="card">
       <h3>Quick Links</h3>
       <div class="row" style="margin-top:8px">
         <button class="btn btnPrimary" onclick="document.querySelector('[data-tab=vipday]').click()">Go to VIP Day</button>
-        <button class="btn btnGhost" onclick="document.querySelector('[data-tab=checkin]').click()">Daily Check‑in</button>
+        <button class="btn btnGhost" onclick="document.querySelector('[data-tab=checkin]').click()">Daily Check-in</button>
       </div>
       <div class="row" style="margin-top:8px">
         ${isLinked()?`<span class="pill">Linked as <b>${who}</b></span>`:`<button class="btn btnGhost" onclick="openGate()">Link Telegram</button>`}
@@ -285,9 +318,9 @@ function renderHome(){
       <details>
         <summary>Rules & FAQ</summary>
         <details open><summary>When is VIP Day?</summary><p>The <b>${VIP_DAY_OF_MONTH}th of every month</b> (local time).</p></details>
-        <details><summary>How do I rank?</summary><p>Play the daily mini game after check‑in to earn points. Top 3 of the 7‑day window get extra rewards.</p></details>
+        <details><summary>How do I rank?</summary><p>Play the daily mini game after check-in to earn points. Top 3 of the 7-day window get extra rewards.</p></details>
         <details><summary>How are points used?</summary><p>Your monthly total sets your <b>VIP Day tier</b>; top scores win leaderboard prizes.</p></details>
-        <details><summary>Anti‑fraud</summary><p>Duplicates, automation, or unfair play may be voided and lead to disqualification.</p></details>
+        <details><summary>Anti-fraud</summary><p>Duplicates, automation, or unfair play may be voided and lead to disqualification.</p></details>
       </details>
     </div>`;
 }
@@ -304,7 +337,7 @@ function renderVIPDay(){
   const now = new Date();
   const todayIsVIP = now.getDate()===VIP_DAY_OF_MONTH;
   const target = nextVIPDay(now);
-  const ms = target - now; // if today is VIP Day, next is next month; but we want unlocked view if date==15
+  const ms = target - now;
 
   if(!todayIsVIP){
     const remain = formatDuration(ms);
@@ -324,7 +357,7 @@ function renderVIPDay(){
     return;
   }
 
-  // Unlocked: show mini-game (simple Plinko with one session awarding points)
+  // Unlocked: show mini-game
   $('#view').innerHTML = `
     <div class="card"><h2>VIP Day Mini Game</h2><p class="mut">Drop 3 balls. Your total becomes your VIP Day bonus points.</p></div>
     <div class="card">
@@ -376,7 +409,7 @@ function runVIPPlinko(){
 
 function currentMonthKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
 
-/* ===== Check‑in (once per day + tiny daily spin) ===== */
+/* ===== Check-in (once per day + tiny daily spin) ===== */
 function renderCheckin(){
   const todayKey = new Date().toISOString().slice(0,10);
   const last = localStorage.getItem('checkin_last')||'';
@@ -385,7 +418,7 @@ function renderCheckin(){
   const monthKey = currentMonthKey();
 
   $('#view').innerHTML = `
-    <div class="card"><h2>Daily Check‑in</h2><p class="mut">Tap once per day to build your streak. You also get a tiny spin for bonus points.</p></div>
+    <div class="card"><h2>Daily Check-in</h2><p class="mut">Tap once per day to build your streak. You also get a tiny spin for bonus points.</p></div>
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:center">
         <div class="pill">Month <b>${monthKey}</b></div>
@@ -393,17 +426,16 @@ function renderCheckin(){
       </div>
       <div class="streak" style="margin-top:10px" id="streakDots"></div>
       <div class="row" style="margin-top:10px">
-        <button class="btn btnPrimary" id="btnCheckin" ${can? '':'disabled'}>${can? 'Check‑in Now':'Already checked in today'}</button>
+        <button class="btn btnPrimary" id="btnCheckin" ${can? '':'disabled'}>${can? 'Check-in Now':'Already checked in today'}</button>
         <span class="mut small">Local time: ${esc(TIMEZONE)}</span>
       </div>
       <div class="spinWrap">
-        <div id="spinMsg" class="mut small">Do a quick spin after check‑in.</div>
+        <div id="spinMsg" class="mut small">Do a quick spin after check-in.</div>
         <div class="row" style="margin-top:6px"><button class="btn btnGhost" id="btnSpin" disabled>Spin</button><span class="mut small">Awards 1–10 pts once per day.</span></div>
         <div class="row" style="margin-top:6px"><span class="pill">Today bonus: <b id="spinVal">0</b></span></div>
       </div>
     </div>`;
 
-  // build streak dots for current month (1..VIP_DAY_OF_MONTH or 1..30)
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
   const wrap = $('#streakDots'); wrap.innerHTML='';
   for(let i=1;i<=Math.min(daysInMonth, VIP_DAY_OF_MONTH);i++){
@@ -420,18 +452,14 @@ function renderCheckin(){
     localStorage.setItem('checkin_streak', String(newStreak));
     $('#streakVal').textContent = String(newStreak);
     $('#btnCheckin').disabled = true; $('#btnCheckin').textContent='Checked in!';
-    // Notify GAS
     await reportScore({game:'checkin',points:1,week:monthKey});
-    // unlock spin
     $('#btnSpin').disabled=false; $('#spinMsg').textContent='Spin is ready!';
-    // update dots UI
     const idx = Math.min(day, VIP_DAY_OF_MONTH)-1; const dEl = wrap.children[idx]; if(dEl) dEl.classList.add('hit');
   };
 
   $('#btnSpin').onclick = async ()=>{
     if($('#btnSpin').disabled) return;
     $('#btnSpin').disabled = true;
-    // random 1..10
     const award = 1 + Math.floor(Math.random()*10);
     $('#spinVal').textContent = String(award);
     await reportScore({game:'daily_spin',points:award,week:monthKey});
@@ -439,7 +467,7 @@ function renderCheckin(){
   };
 }
 
-/* ===== Leaderboard (7‑day window view + search) ===== */
+/* ===== Leaderboard (7-day window view + search) ===== */
 const RANK_AVATARS=[
   "https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png",
   "https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png",
@@ -485,7 +513,7 @@ const maskName = s => { s=String(s||''); if(s.length<=2) return s.replace(/.(?=.
 
 async function renderLeaderboard(){
   $('#view').innerHTML = `
-    <div class="card"><h2>7‑Day Leaderboard</h2><p class="mut">Extra rewards for Top 3 this window.</p></div>
+    <div class="card"><h2>7-Day Leaderboard</h2><p class="mut">Extra rewards for Top 3 this window.</p></div>
     <div class="card" id="lbCard">
       <div class="lbPod">
         <div class="step s2"><div class="trophy t2">2</div><div class="av" id="p2a"></div><div class="name" id="p2n">—</div><div class="mut small" id="p2s"></div></div>
@@ -499,7 +527,6 @@ async function renderLeaderboard(){
   try{
     const raw = await fetchGViz();
     let items = normalize(raw);
-    // Filter by last 7 days if date exists
     const [from,to] = last7DaysKey();
     items = items.filter(r=>!r.date || (r.date>=from && r.date<=to));
     items.sort((a,b)=> b.points-a.points); items.forEach((x,i)=>x.rank=i+1);
@@ -512,7 +539,7 @@ async function renderLeaderboard(){
     items.slice(3,20).forEach(r=> list.insertAdjacentHTML('beforeend',
       `<div class="rowli"><div class="rk">${r.rank}</div><div class="row" style="gap:8px"><div class="face" style="background-image:${faceBg(rankAvatar(r.rank))}"></div><div class="uname">${esc(maskName(r.username))}</div></div><div class="val">${fmt(r.points)}</div></div>`));
     const TOP100 = items.slice(0,100);
-    $('#lbFind').onclick=()=>{ const q=($('#lbQ').value||'').trim().toLowerCase(); const res=$('#lbMine'); if(!q){res.style.display='block'; res.textContent='Enter username'; return} const hit=TOP100.find(x=>x.username.toLowerCase()===q); res.style.display='block'; if(!hit){res.textContent='No match in Top 100 (7‑day window).'; return} res.innerHTML=`<b>${esc(hit.username)}</b> — Rank <b>${hit.rank}</b> • ${fmt(hit.points)} pts`; };
+    $('#lbFind').onclick=()=>{ const q=($('#lbQ').value||'').trim().toLowerCase(); const res=$('#lbMine'); if(!q){res.style.display='block'; res.textContent='Enter username'; return} const hit=TOP100.find(x=>x.username.toLowerCase()===q); res.style.display='block'; if(!hit){res.textContent='No match in Top 100 (7-day window).'; return} res.innerHTML=`<b>${esc(hit.username)}</b> — Rank <b>${hit.rank}</b> • ${fmt(hit.points)} pts`; };
   }catch(e){
     $('#lbCard').insertAdjacentHTML('beforeend', `<p class="mut small">Could not load sheet. Check RANK_SHEET_ID/GID.</p>`);
   }
@@ -530,7 +557,6 @@ async function reportScore({game,points,week=""}){
 
 /* ===== boot UI ===== */
 render(); moveInk(0);
-
 </script>
 </body>
 </html>
