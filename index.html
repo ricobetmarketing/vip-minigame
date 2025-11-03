@@ -2,561 +2,382 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="color-scheme" content="dark" />
-<title>VIP Day Hub — Rico.bet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Choose Your Mission</title>
+<meta name="color-scheme" content="dark light">
 <style>
   :root{
-    --bg0:#0a0c16; --bg1:#0e1030; --bg2:#0b0d24; --ink:#eef2ff; --mut:#a7b2d8; --edge:#ffffff14;
-    --g1:#ff6ec4; --g2:#7873f5; --acc:#ffd86a; --ok:#aef7c1; --bad:#ffb3be; --mxw:560px;
+    --a1:#ff6ec4; --a2:#7873f5; --card:#111228; --ring:#ffffff24;
+    --txt:#f2f3ff; --dim:#cfd0ff; --accent:#a4e0ff;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;background:
-    radial-gradient(1200px 800px at 70% -10%, #17183e 0%, transparent 60%),
-    linear-gradient(180deg,#0a0c16,#060713);
-    color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;
-    overflow-x:hidden;
+  html,body{margin:0;color:var(--txt);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+
+  /* Background image + soft overlay for readability */
+  body{
+    --bgimg:url('https://ricomx.ft-crm.com/media-api/serve/4c140695-50a6-4299-ba89-74e46ae291a9_d2fca62c3853293ec42d7121691049c2.jpg');
+    background:#0e0f23 fixed no-repeat center/cover;
   }
-  .app{max-width:var(--mxw);margin:0 auto;min-height:100dvh;display:grid;grid-template-rows:auto 1fr}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#12143a,#0b0d24);border-bottom:1px solid var(--edge);padding:12px 14px;z-index:10}
-  .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:900}
-  .brand .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 6px 16px rgba(120,115,245,.35)}
-  .mut{color:var(--mut)}
-  main{padding:14px 14px calc(120px + env(safe-area-inset-bottom,0))}
-  .card{background:linear-gradient(180deg,#14163a,#10122f);border:1px solid var(--edge);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 18px 40px rgba(0,0,0,.25)}
-  h1,h2,h3{margin:0 0 8px}
-  h2{font-size:18px} h3{font-size:16px}
-  p{margin:0 0 8px;color:#dfe5ff}
-  .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
-  .btnPrimary{background:var(--acc);color:#2a1a00;box-shadow:0 4px 0 rgba(0,0,0,.18)}
-  .btnGhost{background:#ffffff1a;color:#fff;border:1px solid var(--edge)}
-  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .small{font-size:12px}
-  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);border-radius:999px;padding:6px 10px;color:#cfd6ff}
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(1200px 600px at 50% 0%, #00000080 0%, #000000cc 60%, #000000ee 100%),
+      var(--bgimg) center/cover no-repeat;
+    filter:saturate(1.05);
+  }
 
-  /* Tabs nav (bottom) */
-  nav.iconnav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(var(--mxw),100% - 12px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;background:rgba(14,16,43,.96);backdrop-filter:blur(6px);border:1px solid var(--edge);border-radius:16px;z-index:100}
-  .iconnav .itab{appearance:none;border:0;background:transparent;color:#cfd6ff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:14px;padding:8px 6px;font-weight:800}
-  .iconnav .ico{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s,color .25s}
-  .iconnav .itab.active{color:#fff}
-  .iconnav .itab.active .ico{transform:translateY(-2px) scale(1.06)}
-  .inkbar{position:absolute;bottom:10px;height:44px;left:12px;right:12px;width:calc((100% - 24px - 8px*3)/4);border-radius:16px;background:radial-gradient(90% 140% at 10% 0%,#ff6ec4 0%,#7873f5 60%,#ffcabf 100%);box-shadow:0 12px 26px rgba(255,79,216,.35), inset 0 -2px 6px rgba(0,0,0,.18);transform:translateX(calc(var(--ix) * (100% + 8px)));transition:transform .28s cubic-bezier(.22,.9,.24,1)}
+  a{color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px}
 
-  /* Home view */
-  .vipGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .vipBox{background:linear-gradient(180deg,#1a1d4b,#12153a);border:1px solid var(--edge);border-radius:14px;padding:12px}
-  .vipBox b{font-size:18px}
+  /* Header */
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .badge{background:linear-gradient(90deg,var(--a1),var(--a2));padding:10px 14px;border-radius:12px;font-weight:900;box-shadow:0 8px 24px #0007}
+  .sub{color:var(--dim);font-size:14px;text-shadow:0 1px 0 #000}
 
-  /* VIP Day lock */
-  .lockCard{position:relative;padding:16px;border-radius:16px;background:linear-gradient(180deg,#16184a,#101232);border:1px solid var(--edge)}
-  .count{font:700 20px/1 Inter;letter-spacing:.6px}
-  .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,var(--g1),var(--g2));color:#061018;font-weight:900}
+  /* Grid */
+  .grid{display:grid;gap:14px;margin-top:16px}
+  @media(min-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
 
-  /* Check-in */
-  .streak{display:flex;gap:6px;flex-wrap:wrap}
-  .dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--edge);background:#0e1230;color:#9cb0ff;font-weight:900}
-  .dot.hit{background:linear-gradient(180deg,#2bff9a,#12d18f);color:#052014;border-color:#0d924f}
-  .spinWrap{display:grid;place-items:center;border:1px dashed var(--edge);border-radius:12px;padding:12px;margin-top:8px}
+  /* Card */
+  .card{
+    position:relative;background:#0f122bc0;border:1px solid var(--ring);border-radius:16px;overflow:hidden;
+    box-shadow:0 12px 30px #000a;transform:translateZ(0);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    isolation:isolate; backdrop-filter: blur(6px) saturate(140%);
+    animation:floaty 5s ease-in-out infinite;
+  }
+  .card:nth-child(2){animation-duration:5.6s}
+  .card:nth-child(3){animation-duration:6.2s}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px #000c;border-color:#ffffff40}
 
-  /* Leaderboard */
-  .lbPod{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:end;margin-top:8px}
-  .step{position:relative;border-radius:16px 16px 10px 10px;background:linear-gradient(180deg,#ffffff,#f0ecff);padding:10px 8px 12px;border:1px solid #00000010;box-shadow:inset 0 -12px 18px rgba(100,70,180,.10),0 8px 18px rgba(0,0,0,.10);display:grid;place-items:center;min-height:90px;color:#20184b}
-  .s1{min-height:126px}.s2{min-height:104px}.s3{min-height:98px}
-  .trophy{position:absolute;top:-12px;left:10px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:900;border:2px solid rgba(0,0,0,.06);box-shadow:0 6px 14px rgba(0,0,0,.18)}
-  .t1{background:radial-gradient(circle at 35% 30%,#fff,#ffcf5a 65%);color:#5a4300}
-  .t2{background:radial-gradient(circle at 35% 30%,#fff,#dbe6ff 65%);color:#1d2945}
-  .t3{background:radial-gradient(circle at 35% 30%,#fff,#ffd9b3 65%);color:#4a2c12}
-  .av{position:absolute;top:-64px;left:50%;transform:translateX(-50%);width:76px;height:76px;border-radius:50%;border:4px solid #fff;box-shadow:0 10px 22px rgba(0,0,0,.25);background:#fff center/cover no-repeat}
-  .name{margin-top:14px;font-weight:900}
-  .list{display:grid;gap:8px;margin-top:10px}
-  .rowli{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.8));border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:10px;color:#2b2350}
-  .rk{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;font-weight:900;background:#f0ecff;border:1px solid rgba(0,0,0,.06)}
-  .face{width:38px;height:38px;border-radius:50%;background:#eee center/cover no-repeat;border:2px solid #fff;margin-right:8px}
-  .uname{font-weight:800}
-  .val{font-weight:900;color:#5b4bb4}
-  .search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}
-  .input{border-radius:12px;border:1px solid var(--edge);background:#0f1030;color:#eff3ff;padding:10px 12px}
-  .go{appearance:none;border:0;border-radius:12px;padding:10px 12px;background:var(--acc);color:#3a2400;font-weight:900;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.12)}
-  .result{margin-top:8px;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.08);color:#2b2350;border-radius:12px;padding:10px 12px;font-weight:700;display:none}
+  /* Media area with your GIF + glow */
+  .media{
+    position:relative;aspect-ratio:4/3;background: radial-gradient(circle at 50% 50%, #1b1d45 0%, #0d0f24 100%);
+    display:grid;place-items:center;overflow:hidden;
+  }
+  .media::after{
+    content:"";position:absolute;inset:-40%;
+    background:conic-gradient(from 0deg, #ffffff12, transparent 30% 70%, #ffffff12 100%);
+    animation:spin 6s linear infinite;pointer-events:none;mix-blend:overlay;
+  }
+  @keyframes spin{to{transform:rotate(1turn)}}
 
-  /* Gate modal */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:2000}
-  .modal.show{display:grid}
-  .modalCard{width:min(var(--mxw),92vw);border-radius:16px;padding:16px;background:linear-gradient(180deg,#151744,#101232);border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 38px rgba(0,0,0,.35);position:relative}
-  .closeX{position:absolute;right:10px;top:10px;background:transparent;border:0;color:#cfd8ff;font-weight:900;font-size:18px;cursor:pointer}
-  .inp{width:100%;border-radius:10px;border:1px solid var(--edge);background:#0f1030;color:#eff3ff;padding:10px 12px}
+  /* Gift GIF styling */
+  .media img.reward{
+    width:60%;max-width:230px;transform:translateZ(0) scale(1);
+    filter:drop-shadow(0 10px 22px rgba(255,110,196,0.6));
+    animation:floatGift 5s ease-in-out infinite;
+  }
+  @keyframes floatGift{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.04)}}
 
-  /* Sticky sound button */
-  .soundBtn{position:fixed;right:12px;bottom:calc(72px + env(safe-area-inset-bottom,0));background:rgba(255,255,255,.95);color:#111;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px 12px;display:none;gap:8px;align-items:center;font-weight:900;z-index:1100;box-shadow:0 10px 24px rgba(0,0,0,.25)}
-  .soundBtn.show{display:inline-flex} .soundBtn.active{background:linear-gradient(90deg,#ffd86a,#ffc24d)}
-  .soundBtn .ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8}
+  .body{padding:14px}
+  .title{font-weight:900;font-size:18px;margin:0 0 6px;text-shadow:0 1px 0 #000}
+  .mission{font-size:13px;color:var(--dim);margin:0 0 10px}
+
+  .cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 14px;border-radius:12px;font-weight:800;text-decoration:none;
+    background:linear-gradient(90deg,var(--a1),var(--a2));color:#fff;border:0;cursor:pointer;
+    box-shadow:0 6px 18px #0007;transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .cta:active{transform:translateY(1px);box-shadow:0 3px 10px #0007}
+  .code-hint{margin-top:8px;font-size:12px;color:var(--dim)}
+  .muted{opacity:.85}
+
+  /* (i) info button + tooltip */
+  .i-btn{
+    position:absolute;top:10px;right:10px;z-index:3;width:32px;height:32px;border-radius:999px;
+    display:grid;place-items:center;cursor:pointer;
+    background:#0e0f23cc;border:1px solid var(--ring);color:#fff;font-weight:900;
+    backdrop-filter:saturate(120%) blur(4px);
+  }
+  .tooltip{
+    position:absolute;top:52px;right:10px;z-index:4;min-width:190px;max-width:260px;
+    background:#0e0f23;border:1px solid var(--ring);border-radius:12px;padding:10px;font-size:13px;box-shadow:0 12px 30px #000a;
+    opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+  }
+  .card[data-tip="open"] .tooltip{opacity:1;transform:translateY(0);pointer-events:auto}
+  .tooltip .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#1f2040;border:1px solid #3a3f77;font-weight:700;font-size:12px;color:#fff}
+  .tooltip .line{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .tooltip .line img{width:24px;height:24px}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:#000a;backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:40;
+  }
+  .modal-backdrop.show{display:flex}
+  .modal{
+    width:min(520px, 96vw);background:#0f1126;border:1px solid #ffffff24;border-radius:16px;box-shadow:0 16px 60px #000c;overflow:hidden;
+    animation:pop .18s ease-out;
+  }
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:scale(1);opacity:1}}
+  .m-head{padding:14px;background:linear-gradient(90deg,var(--a1),var(--a2));font-weight:900;color:#fff;display:flex;align-items:center;justify-content:space-between}
+  .m-body{padding:14px}
+  .m-row{display:flex;gap:12px;align-items:center}
+  .m-row img{width:54px;height:54px;object-fit:contain}
+  .m-title{font-weight:800}
+  .check{margin-top:12px;padding:10px;border:1px dashed #ffffff2e;border-radius:10px;background:#0b0c1f}
+  .check label{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+  .m-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+  .btn{padding:10px 14px;border-radius:12px;border:1px solid #3a3f77;background:#1f2040;color:#fff;font-weight:800;cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg,var(--a1),var(--a2));border:0}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .code-panel{margin-top:10px;padding:10px;border:1px solid #ffffff24;border-radius:12px;background:#0a0c1d;display:none}
+  .code{width:100%;padding:10px;border-radius:10px;border:1px solid #ffffff24;background:#0e0f23;color:#fff;font-weight:900;text-align:center;letter-spacing:1px}
+  .copybar{display:flex;gap:10px;margin-top:10px}
+  .copybar .btn{flex:1}
+  .tiny{font-size:12px;color:var(--dim);margin-top:6px}
+
+  /* Confetti */
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+  .confetti i{position:absolute;width:8px;height:14px;background:linear-gradient(180deg,var(--a1),var(--a2));opacity:.9;
+              transform:translateY(-10vh) rotate(0deg);animation:fall 900ms ease-in forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="hrow">
-        <div class="brand"><div class="logo" aria-hidden="true"></div><div>VIP Day Hub</div></div>
-        <div class="mut small" id="hdrRight">v1</div>
-      </div>
-    </header>
-    <main id="view"></main>
-  </div>
+  <div class="wrap">
+    <div class="header">
+      <div class="badge">🎁 Choose ONE Mission</div>
+      <div class="sub">Tap ⓘ for reward hints • Confirm to reveal your voucher</div>
+    </div>
 
-  <!-- Bottom Tabs -->
-  <nav class="iconnav" aria-label="Primary">
-    <div class="inkbar" aria-hidden="true"></div>
-    <button class="itab active" data-tab="home" data-idx="0" aria-label="Home">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M4 10.5l8-6 8 6V20a2 2 0 0 1-2 2h-3.5a1.5 1.5 0 0 1-1.5-1.5V16a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4.5A1.5 1.5 0 0 1 7.5 22H4a2 2 0 0 1-2-2v-9.5z"/></svg><span>Home</span>
-    </button>
-    <button class="itab" data-tab="vipday" data-idx="1" aria-label="VIP Day Game">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M12 2l3 6 6 .9-4.5 4.4 1 6.3L12 17l-5.5 2.6 1-6.3L3 8.9 9 8z"/></svg><span>VIP Day</span>
-    </button>
-    <button class="itab" data-tab="checkin" data-idx="2" aria-label="Check-in">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v4H4zM4 16h16v4H4z"/></svg><span>Check-in</span>
-    </button>
-    <button class="itab" data-tab="leaderboard" data-idx="3" aria-label="Leaderboard">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M7 22V11a2 2 0 0 1 2-2h6v13H7zM3 22v-7a2 2 0 0 1 2-2h1v9H3zM17 22V5a2 2 0 0 1 2-2h2v19h-4z"/></svg><span>Leaders</span>
-    </button>
-  </nav>
-
-  <!-- Login Gate -->
-  <div id="gate" class="modal" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
-    <div class="modalCard">
-      <button id="gateClose" class="closeX" aria-label="Close">✕</button>
-      <h3 id="gateTitle">Login required</h3>
-      <p class="mut">Start our Telegram mini-app and submit your <b>ricobet_username</b>, then tap <b>PLAY NOW</b> in the bot to return.</p>
-      <div class="row" style="margin-top:8px">
-        <a id="startBot" class="btn btnPrimary" href="https://t.me/ricobet_minigamebot?start=play" target="_blank" rel="noopener">Start Bot</a>
-        <span class="mut small">or use fallback:</span>
+    <div class="grid" id="cards">
+      <!-- Card 1 -->
+      <div class="card" data-id="A" data-title="Gift Box 1" data-description="Mission: turnover 100 to unlock" data-voucher="ABCDEF"
+           data-reward-icon="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        <button class="i-btn" aria-label="More info">i</button>
+        <div class="tooltip" role="dialog" aria-label="Gift 1 info">
+          <div class="pill">Gift Box 1</div>
+          <div class="line"><img alt="" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png"><span>Reward icon</span></div>
+          <div class="tiny muted">Turnover 100 to unlock</div>
+        </div>
+        <div class="media">
+          <img class="reward" alt="Gift Box" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        </div>
+        <div class="body">
+          <div class="title">Gift Box 1</div>
+          <p class="mission">Turnover 100 to unlock</p>
+          <button class="cta choose">I want this mission</button>
+          <div class="code-hint">Your code will appear after confirming.</div>
+        </div>
       </div>
-      <div class="row" style="margin-top:8px">
-        <input id="ricoInput" class="inp" placeholder="ricobet_username"/>
-        <button id="btnBind" class="btn btnPrimary">Unlock</button>
+
+      <!-- Card 2 -->
+      <div class="card" data-id="B" data-title="Gift Box 2" data-description="Mission: turnover 80 to unlock" data-voucher="POIUYT"
+           data-reward-icon="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        <button class="i-btn" aria-label="More info">i</button>
+        <div class="tooltip" role="dialog" aria-label="Gift 2 info">
+          <div class="pill">Gift Box 2</div>
+          <div class="line"><img alt="" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png"><span>Reward icon</span></div>
+          <div class="tiny muted">Turnover 80 to unlock</div>
+        </div>
+        <div class="media">
+          <img class="reward" alt="Gift Box" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        </div>
+        <div class="body">
+          <div class="title">Gift Box 2</div>
+          <p class="mission">Turnover 80 to unlock</p>
+          <button class="cta choose">I want this mission</button>
+          <div class="code-hint">Your code will appear after confirming.</div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card" data-id="C" data-title="Gift Box 3" data-description="Mission: turnover 50 to unlock" data-voucher="123456"
+           data-reward-icon="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        <button class="i-btn" aria-label="More info">i</button>
+        <div class="tooltip" role="dialog" aria-label="Gift 3 info">
+          <div class="pill">Gift Box 3</div>
+          <div class="line"><img alt="" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png"><span>Reward icon</span></div>
+          <div class="tiny muted">Turnover 50 to unlock</div>
+        </div>
+        <div class="media">
+          <img class="reward" alt="Gift Box" src="https://ricomx.ft-crm.com/media-api/serve/5b55a687-d742-4c8d-bf41-1ba837f4e84f_1.png">
+        </div>
+        <div class="body">
+          <div class="title">Gift Box 3</div>
+          <p class="mission">Turnover 50 to unlock</p>
+          <button class="cta choose">I want this mission</button>
+          <div class="code-hint">Your code will appear after confirming.</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Theme music (optional) -->
-  <audio id="bgm" src="theme.mp3" preload="auto" loop playsinline></audio>
-  <button id="soundBtn" class="soundBtn" aria-label="Toggle sound" title="Sound">
-    <svg viewBox="0 0 24 24" class="ic"><path d="M4 10h4l5-4v12l-5-4H4zM17 8a5 5 0 010 8"/></svg><span>Sound</span>
-  </button>
+  <!-- Modal -->
+  <div class="modal-backdrop" id="backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+      <div class="m-head">
+        <div id="m-title">Confirm your mission</div>
+        <button class="btn" id="m-close" aria-label="Close">✕</button>
+      </div>
+      <div class="m-body">
+        <div class="m-row">
+          <img id="m-icon" alt="">
+          <div>
+            <div class="m-title" id="m-name">Gift Box</div>
+            <div class="muted" id="m-desc">Mission description…</div>
+          </div>
+        </div>
+
+        <div class="check">
+          <label>
+            <input type="checkbox" id="m-ack" />
+            <span>I confirm I want to choose this mission. I understand other missions may be locked after this selection.</span>
+          </label>
+        </div>
+
+        <div class="m-actions">
+          <button class="btn" id="m-cancel">Cancel</button>
+          <button class="btn primary" id="m-confirm" disabled>Confirm & reveal code</button>
+        </div>
+
+        <div class="code-panel" id="m-codepanel">
+          <div class="m-title">🎉 Your voucher code</div>
+          <input class="code" id="m-code" readonly />
+          <div class="copybar">
+            <button class="btn primary" id="m-copy">Copy code</button>
+            <a class="btn" id="m-open" href="https://rico.bet/myprofile" target="_blank" rel="noopener">Open redeem page</a>
+          </div>
+          <div class="tiny">Tip: if copy is blocked, long-press the code above.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti layer -->
+  <div class="confetti" id="confetti"></div>
 
 <script>
-/* ===================== CONFIG (EDIT THESE) ===================== */
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyz26tOqI4dn5V1yFWPKY0HYmYX1-GsP8y4aYrgEyQ19x0hj5qp41N5fSh2j1jDeFLlUA/exec";
-const RANK_SHEET_ID = "1_E9-40_zTWBWusgGukGrqf83iF0_8qqkItS7chWK_G8";
-const RANK_SHEET_GID = "393171014";
-const VIP_DAY_OF_MONTH = 15; // monthly on the 15th
-const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kuala_Lumpur';
-/* =============================================================== */
-
-/* ===== tiny helpers ===== */
-const $=(s,el)=> (el||document).querySelector(s);
-const $all=(s,el)=> Array.from((el||document).querySelectorAll(s));
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-const fmt=n=>{n=Number(n||0);return n>=1000?(Math.round(n/100)/10).toLocaleString()+"K":n.toLocaleString()};
-const faceBg=url=>`url("${url}")`;
-const qs = new URLSearchParams(location.search);
-
-/* ===== auth helpers ===== */
-const isLinked=()=> !!localStorage.getItem('auth_token');
-function openGate(){ $('#gate').classList.add('show'); }
-function closeGate(){ $('#gate').classList.remove('show'); }
-
-/* Ensure we have profile (name) for a stored token */
-async function ensureProfile(){
-  const token = localStorage.getItem('auth_token');
-  const haveName = !!localStorage.getItem('player_name');
-  if (!token || haveName) return;
-  try{
-    const r = await fetch(GAS_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({kind:'whoami', token})
-    });
-    const j = await r.json();
-    if (j.ok && j.user){
-      const name = j.user.rico_username || j.user.telegram_username || 'player';
-      localStorage.setItem('player_name', name);
-      localStorage.setItem('tg_id', String(j.user.telegram_id||''));
-      localStorage.setItem('tg_username', j.user.telegram_username||'');
+  // --- tiny helper: chime SFX (no external files)
+  const AudioFX = (()=> {
+    let ctx;
+    function ensure(){
+      if(!ctx){ ctx = new (window.AudioContext||window.webkitAudioContext)(); }
+      return ctx;
     }
-  }catch(e){}
-}
+    function beep(seq=[440,660,880], dur=0.08){
+      const c = ensure();
+      let t = c.currentTime + 0.02;
+      seq.forEach((f, i)=>{
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.frequency.value = f;
+        o.type = "triangle";
+        g.gain.value = 0.0001;
+        g.gain.setTargetAtTime(0.12, t, 0.008);
+        g.gain.setTargetAtTime(0.0001, t+dur, 0.02);
+        o.connect(g).connect(c.destination);
+        o.start(t); o.stop(t + dur + 0.05);
+        t += dur * (i===0?1.1:0.9);
+      });
+    }
+    return { beep };
+  })();
 
-/* Manual bind (fallback) */
-async function manualUnlock(username){
-  try{
-    const r=await fetch(GAS_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        kind:'telegram',
-        ricobet_username:username,
-        data:{id: localStorage.getItem('tg_id')||('guest-'+crypto.randomUUID()),
-              username: localStorage.getItem('tg_username')||''}
-      })
-    });
-    const j=await r.json();
-    if(j.ok && j.token){
-      localStorage.setItem('auth_token', j.token);
-      // backend returns rico_username (not ricoUsername)
-      const name = (j.user && (j.user.rico_username || j.user.username)) || username || 'player';
-      localStorage.setItem('player_name', name);
-      closeGate();
-      render();
-    }else alert('Unlock failed');
-  }catch(e){ alert('Unlock failed: '+e.message); }
-}
-
-document.addEventListener('click',e=>{
-  if(e.target.id==='gateClose') closeGate();
-  if(e.target.id==='btnBind'){
-    const v=($('#ricoInput').value||'').trim();
-    if(!v){ alert('Please enter ricobet_username'); return; }
-    manualUnlock(v);
+  // --- confetti burst
+  function confettiBurst() {
+    const layer = document.getElementById('confetti');
+    for (let i=0;i<60;i++){
+      const p = document.createElement('i');
+      p.style.left = (Math.random()*100) + 'vw';
+      p.style.background = `linear-gradient(180deg, hsl(${Math.random()*360} 90% 60%), hsl(${Math.random()*360} 90% 50%))`;
+      p.style.animationDuration = (700 + Math.random()*600) + 'ms';
+      layer.appendChild(p);
+      setTimeout(()=> layer.removeChild(p), 1200);
+    }
   }
-});
 
-/* Handle deep-link return: ?token=... (SendPulse PLAY NOW) */
-(async function bootAuthFromToken(){
-  const token = qs.get('token');
-  if(token){
-    localStorage.setItem('auth_token', token);
+  const cards = document.getElementById('cards');
+  const backdrop = document.getElementById('backdrop');
+  const mName  = document.getElementById('m-name');
+  const mDesc  = document.getElementById('m-desc');
+  const mIcon  = document.getElementById('m-icon');
+  const mAck   = document.getElementById('m-ack');
+  const mConfirm = document.getElementById('m-confirm');
+  const mCancel  = document.getElementById('m-cancel');
+  const mClose   = document.getElementById('m-close');
+  const mCodePanel = document.getElementById('m-codepanel');
+  const mCode   = document.getElementById('m-code');
+  const mCopy   = document.getElementById('m-copy');
+
+  let current = null;
+
+  // Toggle tooltip on ⓘ
+  cards.addEventListener('click', (e)=>{
+    const info = e.target.closest('.i-btn');
+    if(info){
+      const card = info.closest('.card');
+      const open = card.getAttribute('data-tip') === 'open';
+      document.querySelectorAll('.card[data-tip="open"]').forEach(c=>c.removeAttribute('data-tip'));
+      if(!open) card.setAttribute('data-tip', 'open');
+      e.stopPropagation();
+    }
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.card')) document.querySelectorAll('.card[data-tip="open"]').forEach(c=>c.removeAttribute('data-tip'));
+  });
+
+  // Open modal on "choose"
+  cards.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.choose');
+    if(!btn) return;
+    const card = btn.closest('.card');
+    current = {
+      id: card.dataset.id,
+      title: card.dataset.title,
+      desc:  card.dataset.description,
+      code:  card.dataset.voucher,
+      icon:  card.dataset.rewardIcon
+    };
+    mName.textContent = current.title;
+    mDesc.textContent = current.desc;
+    mIcon.src = current.icon;
+    mIcon.alt = current.title + ' reward icon';
+    mAck.checked = false;
+    mConfirm.disabled = true;
+    mCodePanel.style.display = 'none';
+    backdrop.classList.add('show');
+    backdrop.setAttribute('aria-hidden','false');
+    AudioFX.beep([520,680,880], 0.06);
+  });
+
+  // Close modal
+  function closeModal(){
+    backdrop.classList.remove('show');
+    backdrop.setAttribute('aria-hidden','true');
+  }
+  [mCancel, mClose].forEach(b=>b.addEventListener('click', closeModal));
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeModal(); });
+
+  // Enable confirm when acknowledged
+  mAck.addEventListener('change', ()=>{ mConfirm.disabled = !mAck.checked; });
+
+  // Confirm → reveal code
+  mConfirm.addEventListener('click', ()=>{
+    if(!current) return;
+    mCode.value = current.code;
+    mCodePanel.style.display = 'block';
+    AudioFX.beep([660,880,1040], 0.07);
+    confettiBurst();
+  });
+
+  // Copy code
+  mCopy.addEventListener('click', async ()=>{
     try{
-      const r = await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'whoami',token})});
-      const j = await r.json();
-      if(j.ok && j.user){
-        localStorage.setItem('player_provider','telegram');
-        localStorage.setItem('player_provider_id', String(j.user.telegram_id||''));
-        localStorage.setItem('player_name', j.user.rico_username || j.user.telegram_username || 'player');
-        localStorage.setItem('tg_id', String(j.user.telegram_id||''));
-        localStorage.setItem('tg_username', j.user.telegram_username||'');
-      }
-    }catch(e){}
-  }
-})();
-ensureProfile(); // make sure name is filled even without ?token
-
-/* ===== sticky sound (optional) ===== */
-(function(){
-  const audio=$('#bgm'), btn=$('#soundBtn'); if(!audio||!btn) return;
-  const saved=localStorage.getItem('bgm_pref'); if(saved==='off'){audio.muted=true} if(saved==='on'){audio.muted=false}
-  document.addEventListener('DOMContentLoaded',tryPlay,{once:true});
-  async function tryPlay(){try{
-    if(localStorage.getItem('bgm_pref')==='off'){btn.classList.add('show');return}
-    audio.muted=false; await audio.play(); btn.classList.remove('show'); localStorage.setItem('bgm_pref','on')
-  }catch(e){
-    btn.classList.add('show');
-    ['pointerdown','keydown','touchstart'].forEach(evt=>document.addEventListener(evt,unlock,{once:true}))
-  }}
-  async function unlock(){try{audio.muted=false;await audio.play();btn.classList.remove('show');btn.classList.add('active');localStorage.setItem('bgm_pref','on')}catch{}}
-  btn.addEventListener('click',async()=>{try{
-    if(audio.paused){audio.muted=false;await audio.play()}
-    else {audio.muted=!audio.muted;if(audio.muted)await audio.pause();else await audio.play()}
-    const on=!audio.paused && !audio.muted; btn.classList.toggle('active',on); if(on) btn.classList.remove('show'); localStorage.setItem('bgm_pref',on?'on':'off')
-  }catch{}})
-})();
-
-/* ===== global state + router ===== */
-let state={tab:'home'};
-function moveInk(ix){ document.querySelector('nav.iconnav').style.setProperty('--ix', ix); }
-$all('nav.iconnav .itab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    state.tab=btn.dataset.tab;
-    if((state.tab==='vipday' || state.tab==='checkin' || state.tab==='leaderboard') && !isLinked()){
-      openGate();
-    } else closeGate();
-    render();
-  })
-});
-
-function setHeader(){
-  const t = state.tab==='vipday' ? 'VIP Day' : state.tab==='checkin' ? 'Daily Check-in' : state.tab==='leaderboard' ? 'Leaderboard' : 'VIP Day Hub';
-  $('#hdrRight').textContent = new Date().toLocaleDateString(undefined,{weekday:'short', day:'2-digit', month:'short'});
-  document.querySelectorAll('.itab').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));
-  moveInk(parseInt(document.querySelector('.itab.active')?.dataset.idx||'0',10));
-}
-
-async function render(){
-  await ensureProfile(); // make sure name is ready
-  setHeader();
-  if(state.tab==='vipday') return renderVIPDay();
-  if(state.tab==='checkin') return renderCheckin();
-  if(state.tab==='leaderboard') return renderLeaderboard();
-  renderHome();
-}
-
-/* ===================== VIEWS ===================== */
-function renderHome(){
-  const who = esc(localStorage.getItem('player_name')||'Guest');
-  $('#view').innerHTML = `
-    <div class="card">
-      <h2>Welcome${isLinked()?`, ${who}`:''}</h2>
-      <p>This hub runs <b>every month</b>. Check in daily to build your streak and unlock better rewards on <span class="badge">VIP Day (${VIP_DAY_OF_MONTH})</span>.</p>
-      <div class="grid2" style="margin-top:8px">
-        <div class="vipBox"><b>VIP Day</b><p class="small">Mini game unlocks on day <b>${VIP_DAY_OF_MONTH}</b> (local time: ${esc(TIMEZONE)}).</p></div>
-        <div class="vipBox"><b>Check-in</b><p class="small">Tap once per day. Earn points and improve your VIP Day tier.</p></div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>Quick Links</h3>
-      <div class="row" style="margin-top:8px">
-        <button class="btn btnPrimary" onclick="document.querySelector('[data-tab=vipday]').click()">Go to VIP Day</button>
-        <button class="btn btnGhost" onclick="document.querySelector('[data-tab=checkin]').click()">Daily Check-in</button>
-      </div>
-      <div class="row" style="margin-top:8px">
-        ${isLinked()?`<span class="pill">Linked as <b>${who}</b></span>`:`<button class="btn btnGhost" onclick="openGate()">Link Telegram</button>`}
-      </div>
-    </div>
-    <div class="card">
-      <details>
-        <summary>Rules & FAQ</summary>
-        <details open><summary>When is VIP Day?</summary><p>The <b>${VIP_DAY_OF_MONTH}th of every month</b> (local time).</p></details>
-        <details><summary>How do I rank?</summary><p>Play the daily mini game after check-in to earn points. Top 3 of the 7-day window get extra rewards.</p></details>
-        <details><summary>How are points used?</summary><p>Your monthly total sets your <b>VIP Day tier</b>; top scores win leaderboard prizes.</p></details>
-        <details><summary>Anti-fraud</summary><p>Duplicates, automation, or unfair play may be voided and lead to disqualification.</p></details>
-      </details>
-    </div>`;
-}
-
-/* ===== VIP Day view (locked until 15th) ===== */
-function nextVIPDay(now){
-  const y=now.getFullYear(), m=now.getMonth();
-  let target = new Date(y, m, VIP_DAY_OF_MONTH, 0,0,0);
-  if(now > target) target = new Date(y, m+1, VIP_DAY_OF_MONTH, 0,0,0);
-  return target;
-}
-
-function renderVIPDay(){
-  const now = new Date();
-  const todayIsVIP = now.getDate()===VIP_DAY_OF_MONTH;
-  const target = nextVIPDay(now);
-  const ms = target - now;
-
-  if(!todayIsVIP){
-    const remain = formatDuration(ms);
-    $('#view').innerHTML = `
-      <div class="card lockCard">
-        <div class="row" style="justify-content:space-between">
-          <h2>VIP Day Mini Game</h2>
-          <span class="badge">Locked</span>
-        </div>
-        <p class="mut">Unlocks on the <b>${VIP_DAY_OF_MONTH}th</b> each month. Countdown:</p>
-        <div class="count" id="vipCountdown">${remain}</div>
-        <div class="row" style="margin-top:10px">
-          <button class="btn btnGhost" onclick="document.querySelector('[data-tab=checkin]').click()">Build your streak</button>
-        </div>
-      </div>`;
-    startCountdown(target, '#vipCountdown');
-    return;
-  }
-
-  // Unlocked: show mini-game
-  $('#view').innerHTML = `
-    <div class="card"><h2>VIP Day Mini Game</h2><p class="mut">Drop 3 balls. Your total becomes your VIP Day bonus points.</p></div>
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><div><b>Lucky Drop — VIP</b></div><div class="pill" id="vpRuns">Runs left: 3</div></div>
-      <canvas id="vipCanvas" width="520" height="340" style="width:100%;height:340px;margin-top:8px;background:linear-gradient(180deg,#0a0e24,#060814);border-radius:12px"></canvas>
-      <div class="row" style="margin-top:8px"><button class="btn btnPrimary" id="vpDrop">Drop Ball</button><span class="mut small">Tap inside the board to drop at a position.</span></div>
-      <div class="row" style="margin-top:8px"><span class="pill">Session score: <b id="vpScore">0</b></span></div>
-    </div>`;
-  runVIPPlinko();
-}
-
-function formatDuration(ms){
-  if(ms<=0) return '00d 00h 00m 00s';
-  const s=Math.floor(ms/1000), d=Math.floor(s/86400), h=Math.floor((s%86400)/3600), m=Math.floor((s%3600)/60), ss=s%60;
-  return `${String(d).padStart(2,'0')}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(ss).padStart(2,'0')}s`;
-}
-
-let countdownRAF=null;
-function startCountdown(target, sel){
-  const el = $(sel); if(!el) return;
-  function tick(){ const ms = target - new Date(); el.textContent = formatDuration(ms); countdownRAF=requestAnimationFrame(tick);} tick();
-}
-
-function runVIPPlinko(){
-  const canvas=$('#vipCanvas'), ctx=canvas.getContext('2d');
-  const w=canvas.width=canvas.clientWidth, h=canvas.height=340;
-  const pins=[], cols=9, rows=7, spacing=w/(cols+1), offsetY=70;
-  for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){const x=spacing*(c+1)+(r%2?spacing/2:0),y=offsetY+r*38;if(x>20&&x<w-20)pins.push({x,y})}}
-  const slotVals=[10,15,20,40,100,40,20,15,10];
-  let ball=null, total=0, runs=Number(localStorage.getItem('vip_runs_left')||'3');
-  $('#vpRuns').textContent = `Runs left: ${runs}`;
-  function drop(x){ if(runs<=0 || ball) return; ball={x:x||w/2,y:30,vx:0,vy:0,r:8}; runs--; localStorage.setItem('vip_runs_left', String(runs)); $('#vpRuns').textContent = `Runs left: ${runs}`; }
-  $('#vpDrop').onclick=()=>drop();
-  canvas.onclick=e=>{const rect=canvas.getBoundingClientRect();drop(e.clientX-rect.left)};
-
-  function drawSlots(){for(let s=0;s<cols;s++){const sx=spacing*(s+1);ctx.fillStyle='#11245a';ctx.fillRect(sx-2,h-60,4,60);ctx.fillStyle='#bcd2ff';ctx.font='bold 12px Inter';ctx.textAlign='center';ctx.fillText(slotVals[s],sx,h-66)}}
-
-  function loop(){ ctx.clearRect(0,0,w,h); ctx.fillStyle='#060b1a'; ctx.fillRect(0,0,w,h); drawSlots();
-    ctx.fillStyle='#8aa3ff'; pins.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()});
-    if(ball){ ball.vy+=0.35; ball.x+=ball.vx; ball.y+=ball.vy; if(ball.x<ball.r){ball.x=ball.r;ball.vx*=-0.6} if(ball.x>w-ball.r){ball.x=w-ball.r;ball.vx*=-0.6}
-      pins.forEach(p=>{const dx=ball.x-p.x,dy=ball.y-p.y,d=Math.hypot(dx,dy); if(d<ball.r+5){ const ang=Math.atan2(dy,dx),speed=Math.hypot(ball.vx,ball.vy)*0.9+1,dir=(Math.random()<0.5?-1:1)*0.9; ball.vx=Math.cos(ang)*speed*dir; ball.vy=Math.sin(ang)*speed; const ov=ball.r+5-d; ball.x+=Math.cos(ang)*ov; ball.y+=Math.sin(ang)*ov;}});
-      if(ball.y>h-12){ ball.vy*=-0.35; ball.y=h-12; ball.vx*=0.95; if(Math.abs(ball.vy)<0.5){ let idx=Math.max(0,Math.min(cols-1,Math.round(ball.x/spacing)-1)); const award=slotVals[idx]||0; total+=award; $('#vpScore').textContent= String(total); reportScore({game:'vipday',points:award,week:currentMonthKey()}); ball=null; if(runs<=0){ $('#vpDrop').disabled=true; } } }
-      ctx.fillStyle='#ffd86a'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+      await navigator.clipboard.writeText(mCode.value);
+      mCopy.textContent = 'Copied ✓';
+      setTimeout(()=> mCopy.textContent = 'Copy code', 1400);
+      AudioFX.beep([900,720], 0.06);
+    }catch(e){
+      mCopy.textContent = 'Copy failed – select';
+      setTimeout(()=> mCopy.textContent = 'Copy code', 1600);
     }
-    requestAnimationFrame(loop);
-  }
-  loop();
-}
-
-function currentMonthKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-
-/* ===== Check-in (once per day + tiny daily spin) ===== */
-function renderCheckin(){
-  const todayKey = new Date().toISOString().slice(0,10);
-  const last = localStorage.getItem('checkin_last')||'';
-  const can = last!==todayKey;
-  const streak = Number(localStorage.getItem('checkin_streak')||'0');
-  const monthKey = currentMonthKey();
-
-  $('#view').innerHTML = `
-    <div class="card"><h2>Daily Check-in</h2><p class="mut">Tap once per day to build your streak. You also get a tiny spin for bonus points.</p></div>
-    <div class="card">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div class="pill">Month <b>${monthKey}</b></div>
-        <div class="pill">Streak: <b id="streakVal">${streak}</b></div>
-      </div>
-      <div class="streak" style="margin-top:10px" id="streakDots"></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn btnPrimary" id="btnCheckin" ${can? '':'disabled'}>${can? 'Check-in Now':'Already checked in today'}</button>
-        <span class="mut small">Local time: ${esc(TIMEZONE)}</span>
-      </div>
-      <div class="spinWrap">
-        <div id="spinMsg" class="mut small">Do a quick spin after check-in.</div>
-        <div class="row" style="margin-top:6px"><button class="btn btnGhost" id="btnSpin" disabled>Spin</button><span class="mut small">Awards 1–10 pts once per day.</span></div>
-        <div class="row" style="margin-top:6px"><span class="pill">Today bonus: <b id="spinVal">0</b></span></div>
-      </div>
-    </div>`;
-
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
-  const wrap = $('#streakDots'); wrap.innerHTML='';
-  for(let i=1;i<=Math.min(daysInMonth, VIP_DAY_OF_MONTH);i++){
-    const hit = localStorage.getItem('checkin_'+String(i).padStart(2,'0'))==='1';
-    const d = document.createElement('div'); d.className='dot'+(hit?' hit':''); d.textContent = i; wrap.appendChild(d);
-  }
-
-  $('#btnCheckin').onclick = async ()=>{
-    const now = new Date(); const day = now.getDate();
-    if(localStorage.getItem('checkin_last')===todayKey) return;
-    localStorage.setItem('checkin_last', todayKey);
-    localStorage.setItem('checkin_'+String(day).padStart(2,'0'),'1');
-    const newStreak = (Number(localStorage.getItem('checkin_streak')||'0')||0) + 1;
-    localStorage.setItem('checkin_streak', String(newStreak));
-    $('#streakVal').textContent = String(newStreak);
-    $('#btnCheckin').disabled = true; $('#btnCheckin').textContent='Checked in!';
-    await reportScore({game:'checkin',points:1,week:monthKey});
-    $('#btnSpin').disabled=false; $('#spinMsg').textContent='Spin is ready!';
-    const idx = Math.min(day, VIP_DAY_OF_MONTH)-1; const dEl = wrap.children[idx]; if(dEl) dEl.classList.add('hit');
-  };
-
-  $('#btnSpin').onclick = async ()=>{
-    if($('#btnSpin').disabled) return;
-    $('#btnSpin').disabled = true;
-    const award = 1 + Math.floor(Math.random()*10);
-    $('#spinVal').textContent = String(award);
-    await reportScore({game:'daily_spin',points:award,week:monthKey});
-    $('#spinMsg').textContent='Bonus added!';
-  };
-}
-
-/* ===== Leaderboard (7-day window view + search) ===== */
-const RANK_AVATARS=[
-  "https://ricomx.ft-crm.com/media-api/serve/30739191-4079-40cd-9154-f15c869c9f35_1.png",
-  "https://ricomx.ft-crm.com/media-api/serve/7e97b3d5-f53f-4211-b7d3-0c012a8e05ff_2.png",
-  "https://ricomx.ft-crm.com/media-api/serve/4120e46c-d810-46bb-924d-fb7769b56c0c_3.png",
-  "https://ricomx.ft-crm.com/media-api/serve/84bc31f3-69d6-47e9-950b-e557dd0cf4f6_4.png",
-  "https://ricomx.ft-crm.com/media-api/serve/d0692e25-3fdf-4004-af72-b572175fd49c_5.png",
-  "https://ricomx.ft-crm.com/media-api/serve/596c02c5-ad1c-42b7-9fb2-da6df154d35b_6.png",
-  "https://ricomx.ft-crm.com/media-api/serve/587f1afe-0e39-4f76-8715-48496452cfdf_7.png",
-  "https://ricomx.ft-crm.com/media-api/serve/6959ee62-92fa-4192-a2d6-f678a4934b4f_8.png",
-  "https://ricomx.ft-crm.com/media-api/serve/a450b16e-9310-4e83-ae66-ea71822a218b_9.png",
-  "https://ricomx.ft-crm.com/media-api/serve/24e07c3f-99fb-4bed-91f1-b91f1e0f7c8d_10.png",
-  "https://ricomx.ft-crm.com/media-api/serve/120d451f-a6dc-4f7b-b3f4-a1b5b8642443_11.png",
-  "https://ricomx.ft-crm.com/media-api/serve/65646abf-45f0-46b4-9c9c-f135f3b429e4_12.png",
-  "https://ricomx.ft-crm.com/media-api/serve/685901d2-f392-4d9f-83bf-b8f5ae4cf3bc_13.png",
-  "https://ricomx.ft-crm.com/media-api/serve/a3e8f9f5-851f-4048-b1ff-e7255de54266_14.png",
-  "https://ricomx.ft-crm.com/media-api/serve/92cde2cb-1afa-4c2e-b0f7-bf77f6b37a4a_15.png",
-  "https://ricomx.ft-crm.com/media-api/serve/1a77dbff-a836-4e7b-831f-77734198c725_16.png",
-  "https://ricomx.ft-crm.com/media-api/serve/ab17bec9-169e-4e99-9e2d-e560fd29403e_17.png",
-  "https://ricomx.ft-crm.com/media-api/serve/a698b757-2f99-49a7-95fb-68318d1637d6_18.png",
-  "https://ricomx.ft-crm.com/media-api/serve/ab8c0632-b1d4-41e5-be64-ba1e96d5ab1b_19.png",
-  "https://ricomx.ft-crm.com/media-api/serve/7c6d505e-174d-4214-9e93-bb7cdcc4098f_20.png",
-];
-
-async function fetchGViz(){
-  const url=`https://docs.google.com/spreadsheets/d/${RANK_SHEET_ID}/gviz/tq?tqx=out:json&gid=${encodeURIComponent(RANK_SHEET_GID)}`;
-  const text=await fetch(url,{cache:"no-store"}).then(r=>r.text());
-  const j=(text.match(/google\.visualization\.Query\.setResponse\((.*)\);?/s)||[])[1]; if(!j) throw new Error('parse');
-  const data=JSON.parse(j);
-  const headers=data.table.cols.map(c=>c.label||c.id||"");
-  const rows=data.table.rows.filter(r=>r&&r.c).map(r=> r.c.map(c=> c?(c.f!=null?c.f:c.v):""));
-  return {headers,rows};
-}
-function pickIndex(headers,aliases){const L=headers.map(h=>String(h||'').toLowerCase());for(const a of aliases){const j=L.findIndex(h=>h.includes(a));if(j>-1)return j}return -1}
-function normalize({headers:h,rows}){
-  const ui=pickIndex(h,["username","user","player","name"]);
-  const pi=pickIndex(h,["points","score","total"]);
-  const di=pickIndex(h,["date","day","created","timestamp"]);
-  if(ui<0||pi<0) throw new Error('missing cols');
-  return rows.map(r=>({username:String(r[ui]||"").trim(),points:Number(String(r[pi]).replace(/[^\d.\-]/g,''))||0,date: di>-1? String(r[di]||"").trim() : ""})).filter(x=>x.username);
-}
-function last7DaysKey(){ const now=new Date(); const from = new Date(now.getTime()-6*86400000); return [from.toISOString().slice(0,10), now.toISOString().slice(0,10)]; }
-const maskName = s => { s=String(s||''); if(s.length<=2) return s.replace(/.(?=.)/g,'*'); const a=s[0], b=s[s.length-1]; const middle = s.slice(1,-1).replace(/./g,'*'); return a+middle+b; };
-
-async function renderLeaderboard(){
-  $('#view').innerHTML = `
-    <div class="card"><h2>7-Day Leaderboard</h2><p class="mut">Extra rewards for Top 3 this window.</p></div>
-    <div class="card" id="lbCard">
-      <div class="lbPod">
-        <div class="step s2"><div class="trophy t2">2</div><div class="av" id="p2a"></div><div class="name" id="p2n">—</div><div class="mut small" id="p2s"></div></div>
-        <div class="step s1"><div class="trophy t1">1</div><div class="av" id="p1a"></div><div class="name" id="p1n">—</div><div class="mut small" id="p1s"></div></div>
-        <div class="step s3"><div class="trophy t3">3</div><div class="av" id="p3a"></div><div class="name" id="p3n">—</div><div class="mut small" id="p3s"></div></div>
-      </div>
-      <div class="list" id="lbList"></div>
-      <div class="search"><input id="lbQ" class="input" placeholder="Search username (Top 100)…"/><button id="lbFind" class="go">Find</button></div>
-      <div id="lbMine" class="result"></div>
-    </div>`;
-  try{
-    const raw = await fetchGViz();
-    let items = normalize(raw);
-    const [from,to] = last7DaysKey();
-    items = items.filter(r=>!r.date || (r.date>=from && r.date<=to));
-    items.sort((a,b)=> b.points-a.points); items.forEach((x,i)=>x.rank=i+1);
-    const setPod=(id,row)=>{ const url=row?rankAvatar(row.rank):RANK_AVATARS[0];
-      $(`#p${id}a`).style.backgroundImage=faceBg(url);
-      $(`#p${id}n`).textContent=row?maskName(row.username):'—';
-      $(`#p${id}s`).textContent=row?(fmt(row.points)+' pts'):'' }
-    setPod(1,items[0]||null); setPod(2,items[1]||null); setPod(3,items[2]||null);
-    const list=$('#lbList'); list.innerHTML='';
-    items.slice(3,20).forEach(r=> list.insertAdjacentHTML('beforeend',
-      `<div class="rowli"><div class="rk">${r.rank}</div><div class="row" style="gap:8px"><div class="face" style="background-image:${faceBg(rankAvatar(r.rank))}"></div><div class="uname">${esc(maskName(r.username))}</div></div><div class="val">${fmt(r.points)}</div></div>`));
-    const TOP100 = items.slice(0,100);
-    $('#lbFind').onclick=()=>{ const q=($('#lbQ').value||'').trim().toLowerCase(); const res=$('#lbMine'); if(!q){res.style.display='block'; res.textContent='Enter username'; return} const hit=TOP100.find(x=>x.username.toLowerCase()===q); res.style.display='block'; if(!hit){res.textContent='No match in Top 100 (7-day window).'; return} res.innerHTML=`<b>${esc(hit.username)}</b> — Rank <b>${hit.rank}</b> • ${fmt(hit.points)} pts`; };
-  }catch(e){
-    $('#lbCard').insertAdjacentHTML('beforeend', `<p class="mut small">Could not load sheet. Check RANK_SHEET_ID/GID.</p>`);
-  }
-}
-function rankAvatar(r){const i=Math.min(Math.max(1,r),20)-1;return RANK_AVATARS[i]}
-
-/* ===== score reporting to GAS ===== */
-async function reportScore({game,points,week=""}){
-  const token=localStorage.getItem('auth_token')||''; if(!token){ console.warn('[score] missing token'); return; }
-  try{
-    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'score',token,game,points,week})});
-    const j=await r.json().catch(()=> ({})); if(!j.ok){ console.warn('[score] rejected', j); }
-  }catch(e){ console.warn('[score] network error', e); }
-}
-
-/* ===== boot UI ===== */
-render(); moveInk(0);
+  });
 </script>
 </body>
 </html>
